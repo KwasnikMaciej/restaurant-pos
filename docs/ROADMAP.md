@@ -11,7 +11,11 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 - [x] Utworzyć repozytorium Git i wykonać pierwszy push do prywatnego GitHuba.
 - [x] Dodać dokumentację projektu.
 - [ ] Sprawdzić, czy lokalny projekt jest czysty po dodaniu dokumentacji.
-- [ ] Zweryfikować `npm run lint` i `npm run build`.
+- [ ] Zweryfikować `npm run lint` i `npm run build` lokalnie.
+- [x] Dodać workflow CI w GitHub Actions (lint + build).
+- [x] Opisać konfigurację hostingu i CD w `docs/DEPLOYMENT.md`.
+- [ ] Jednorazowo połączyć repozytorium z hostingiem HTTPS i wykonać pierwsze wdrożenie.
+- [ ] Potwierdzić, że opublikowana strona otwiera się na tablecie.
 
 ## Etap 1 — Podstawowy interfejs POS
 
