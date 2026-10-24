@@ -12,6 +12,8 @@ Projekt jest na etapie konfiguracji fundamentów. Aplikacja React + TypeScript +
 - [Plan prac i checklista](docs/ROADMAP.md)
 - [Architektura początkowa](docs/ARCHITECTURE.md)
 - [Rejestr decyzji technicznych](docs/DECISIONS.md)
+- [Hosting i CI/CD](docs/DEPLOYMENT.md)
+- [Indeks dokumentacji](docs/README.md)
 
 ## Wymagania
 
@@ -37,6 +39,10 @@ Vite pokaże adres lokalny, zwykle `http://localhost:5173/`.
 npm run lint
 npm run build
 ```
+
+## CI/CD i hosting
+
+Workflow GitHub Actions znajduje się w `.github/workflows/ci.yml` i wykonuje lint oraz build. Instrukcja jednorazowej konfiguracji hostingu i publikacji strony znajduje się w [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Sam hosting wymaga jednorazowego połączenia konta GitHub z dostawcą hostingu.
 
 ## Ważne ograniczenia
 
