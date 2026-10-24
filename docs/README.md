@@ -6,6 +6,7 @@ Zacznij tutaj, jeśli wracasz do projektu po przerwie.
 2. [Plan prac](ROADMAP.md) — etapy, checklista i aktualny status.
 3. [Architektura](ARCHITECTURE.md) — podział modułów, przepływ zamówienia i integracja drukarki.
 4. [Decyzje techniczne](DECISIONS.md) — zapis kluczowych decyzji i ich uzasadnień.
+5. [Hosting i CI/CD](DEPLOYMENT.md) — pipeline, jednorazowa konfiguracja hostingu i test na tablecie.
 
 ## Zasada aktualizacji
 
@@ -13,3 +14,4 @@ Zacznij tutaj, jeśli wracasz do projektu po przerwie.
 - Po ukończeniu lub zmianie kolejności prac aktualizuj `ROADMAP.md`.
 - Po istotnej zmianie struktury aktualizuj `ARCHITECTURE.md`.
 - Nowe decyzje o wpływie na technologię lub architekturę dopisuj do `DECISIONS.md`.
+- Zmiany sposobu budowania i publikacji opisuj w `DEPLOYMENT.md`.
