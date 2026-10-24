@@ -57,6 +57,7 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 
 - [x] Ustalić dane przechowywane lokalnie: numer, pozycje, ceny, suma i data ukończenia zamówienia.
 - [x] Zapisywać maksymalnie 100 ostatnich zamówień w `localStorage` i umożliwić ponowne otwarcie szczegółów.
+- [x] Wydzielić historię do osobnej podstrony i dodać nawigację „Zamówienie” / „Historia”.
 - [ ] Dopracować komunikaty, dostępność i wygodę obsługi dotykowej.
 - [ ] Przetestować odświeżenie aplikacji i zachowanie bieżącego zamówienia.
 - [ ] Wybrać i wdrożyć kolejną funkcjonalność POS przed powrotem do szczegółowych testów drukarki.

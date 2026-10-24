@@ -63,3 +63,11 @@ Zapisujemy tutaj decyzje, które wpływają na zakres, technologię lub architek
 - **Decyzja:** zapisujemy maksymalnie 100 ostatnich zamówień w `localStorage`, razem z pozycjami, cenami, sumą i datą; umożliwiamy ponowne otwarcie szczegółów.
 - **Powód:** użytkownik powinien móc wrócić do wcześniejszego zamówienia po zamknięciu potwierdzenia lub odświeżeniu strony, bez uruchamiania backendu.
 - **Konsekwencje:** historia jest ograniczona do konkretnej przeglądarki i urządzenia. Brak miejsca lub odmowa dostępu do pamięci lokalnej nie może cofnąć zamówienia w bieżącej sesji; aplikacja pokazuje wtedy ostrzeżenie.
+
+
+## D-010 — Historia jako osobna podstrona
+
+- **Status:** zaakceptowana
+- **Decyzja:** oddzielamy widok składania zamówienia od widoku historii za pomocą wspólnej nawigacji aplikacji.
+- **Powód:** historia jest osobną funkcją i nie powinna rozwijać się wewnątrz ekranu menu/koszyka.
+- **Konsekwencje:** użytkownik przełącza się między „Zamówienie” i „Historia” bez utraty zapisanych zamówień. Koszyk pozostaje elementem strony zamówienia.

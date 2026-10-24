@@ -38,7 +38,7 @@ Wymagania środowiskowe i szczegóły zależą od aktualnej konfiguracji projekt
 4. Zwiększanie i zmniejszanie ilości oraz usuwanie pozycji.
 5. Obliczanie sumy zamówienia.
 6. Symulowana finalizacja zamówienia i lokalna historia do 100 ostatnich zamówień.
-7. Podgląd szczegółów wcześniejszych zamówień.
+7. Podstrona historii zamówień z podglądem szczegółów wcześniejszych zamówień.
 8. Wydruk niefiskalnego potwierdzenia bezpośrednio na drukarce Bluetooth.
 9. Podstawowa obsługa błędów: brak połączenia, anulowanie wyboru urządzenia, błąd wydruku.
 10. Krótkie instrukcje uruchomienia i testowania.
