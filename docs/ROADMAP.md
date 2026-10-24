@@ -40,14 +40,14 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 ## Etap 3 — Rozpoznanie i integracja drukarki
 
 - [x] Potwierdzić, że Chrome na Androidzie 16 łączy się z `MX06 Mini Printer` i wykonuje testowy wydruk.
-- [ ] Zweryfikować możliwości Web Bluetooth i ograniczenia uprawnień w docelowym Chrome.
-- [ ] Przeanalizować [cat-printer-web](https://github.com/zmras/cat-printer-web) i ustalić właściwy protokół / format danych.
-- [ ] Sprawdzić, czy drukarka wymaga konkretnego kodowania znaków, komend lub formatu obrazu.
-- [ ] Zaimplementować mały, niezależny test wydruku z aplikacji.
-- [ ] Wydzielić obsługę drukarki do modułu `src/printing/`.
-- [ ] Zbudować format niefiskalnego paragonu.
-- [ ] Połączyć finalizację zamówienia z drukowaniem.
-- [ ] Obsłużyć anulowanie połączenia i błędy wydruku bez utraty danych zamówienia.
+- [x] Potwierdzić wymagania Web Bluetooth: bezpieczny kontekst HTTPS i wybór urządzenia po gestcie użytkownika.
+- [x] Przeanalizować [cat-printer-web](https://github.com/zmras/cat-printer-web); przyjąć roboczo protokół rodziny MX06/GB01 oparty o ramki `51 78` (potwierdzić testem na własnym egzemplarzu).
+- [x] Przygotować monochromatyczny obraz paragonu, aby nie polegać na kodowaniu znaków w firmware drukarki.
+- [x] Wydzielić adapter Bluetooth i formatowanie pakietów do `src/printing/mx06-printer.ts`.
+- [x] Dodać w potwierdzeniu zamówienia przycisk testowego wydruku, uruchamiany gestem użytkownika.
+- [ ] Potwierdzić na własnej drukarce, że połączenie i format pakietów powodują poprawny wydruk.
+- [ ] Dopracować format niefiskalnego paragonu po teście papierowym.
+- [x] Oddzielić status drukowania od statusu zamówienia; błąd wydruku nie cofa zamówienia.
 
 ## Etap 4 — Dane lokalne i dopracowanie
 
