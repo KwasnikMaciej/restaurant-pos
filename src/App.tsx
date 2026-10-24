@@ -22,12 +22,17 @@ type CartItem = {
 
 type CompletedOrder = {
   number: number
+  tableId: number
   items: CartItem[]
   total: number
   completedAt: Date
+  status: 'open' | 'paid' | 'cancelled'
+  paymentMethod?: 'cash' | 'card'
+  paidAt?: Date
 }
 
-const ORDER_HISTORY_KEY = 'franczesko:order-history'
+const ORDER_HISTORY_KEY = 'franczesko:orders-v2'
+const TABLE_NUMBERS = Array.from({ length: 10 }, (_, index) => index + 1)
 const MAX_STORED_ORDERS = 100
 
 const categories: Category[] = [
@@ -66,10 +71,10 @@ function loadOrderHistory(): CompletedOrder[] {
 
     return parsed.filter((value): value is Omit<CompletedOrder, 'completedAt'> & { completedAt: string } =>
       typeof value === 'object' && value !== null &&
-      typeof value.number === 'number' && Array.isArray(value.items) &&
-      typeof value.total === 'number' && typeof value.completedAt === 'string' &&
+      typeof value.number === 'number' && Number.isInteger(value.tableId) && Array.isArray(value.items) &&
+      typeof value.total === 'number' && ['open', 'paid', 'cancelled'].includes(value.status) && typeof value.completedAt === 'string' &&
       Number.isFinite(Date.parse(value.completedAt))
-    ).map((order) => ({ ...order, completedAt: new Date(order.completedAt) }))
+    ).map((order) => ({ ...order, completedAt: new Date(order.completedAt), paidAt: order.paidAt ? new Date(order.paidAt) : undefined }))
       .slice(0, MAX_STORED_ORDERS)
   } catch {
     return []
@@ -77,7 +82,10 @@ function loadOrderHistory(): CompletedOrder[] {
 }
 
 function App() {
-  const [page, setPage] = useState<'order' | 'history'>('order')
+  const [page, setPage] = useState<'order' | 'tables' | 'history'>('tables')
+  const [selectedTableId, setSelectedTableId] = useState<number | null>(null)
+  const [paymentOpen, setPaymentOpen] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash')
   const [activeCategory, setActiveCategory] = useState<Category>('Wszystko')
   const [cart, setCart] = useState<CartItem[]>([])
   const [cartOpen, setCartOpen] = useState(false)
@@ -102,6 +110,14 @@ function App() {
     [activeCategory],
   )
 
+  const openOrders = orderHistory.filter((order) => order.status === 'open')
+  const tableOrder = (tableId: number) => orderHistory.find((order) => order.tableId === tableId && order.status === 'open')
+  const selectedOpenOrder = selectedTableId === null ? undefined : tableOrder(selectedTableId)
+  const persistOrders = (orders: CompletedOrder[]) => {
+    try { window.localStorage.setItem(ORDER_HISTORY_KEY, JSON.stringify(orders.slice(0, MAX_STORED_ORDERS))); setHistoryStorageWarning(''); return true }
+    catch { setHistoryStorageWarning('Nie udało się zapisać zmian na stałe. Stolik pozostaje zajęty do czasu poprawnego zapisu.'); return false }
+  }
+  const selectTable = (tableId: number) => { const existing = tableOrder(tableId); setSelectedTableId(tableId); setCart(existing ? existing.items.map((item) => ({ ...item })) : []); setPage('order'); setCartOpen(false) }
   const itemCount = cart.reduce((total, item) => total + item.quantity, 0)
   const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
 
@@ -122,31 +138,27 @@ function App() {
   }
 
   const completeOrder = () => {
-    if (cart.length === 0) return
+    if (cart.length === 0 || selectedTableId === null) return
+    const existing = tableOrder(selectedTableId)
+    const now = new Date()
+    const order: CompletedOrder = existing
+      ? { ...existing, items: cart.map((item) => ({ ...item })), total, completedAt: existing.completedAt }
+      : { number: nextOrderNumber, tableId: selectedTableId, items: cart.map((item) => ({ ...item })), total, completedAt: now, status: 'open' }
+    const updatedHistory = [order, ...orderHistory.filter((item) => item.number !== order.number)].slice(0, MAX_STORED_ORDERS)
+    try { window.localStorage.setItem('franczesko:last-order-number', String(Math.max(nextOrderNumber, order.number))) } catch { setHistoryStorageWarning('Nie udało się zapisać numeru zamówienia na stałe.') }
+    persistOrders(updatedHistory)
+    setOrderHistory(updatedHistory); setLastOrder(order)
+    if (!existing) setNextOrderNumber((number) => number + 1)
+    setCart([]); setCheckoutOpen(false); setCartOpen(false); setPage('tables')
+  }
 
-    const order: CompletedOrder = {
-      number: nextOrderNumber,
-      items: cart.map((item) => ({ ...item })),
-      total,
-      completedAt: new Date(),
-    }
-
-    const updatedHistory = [order, ...orderHistory].slice(0, MAX_STORED_ORDERS)
-    setOrderHistory(updatedHistory)
-
-    try {
-      window.localStorage.setItem('franczesko:last-order-number', String(order.number))
-      window.localStorage.setItem(ORDER_HISTORY_KEY, JSON.stringify(updatedHistory))
-      setHistoryStorageWarning('')
-    } catch {
-      setHistoryStorageWarning('Zamówienie jest dostępne w tej sesji, ale przeglądarka nie pozwoliła zapisać historii na stałe.')
-    }
-
-    setLastOrder(order)
-    setNextOrderNumber((number) => number + 1)
-    setCart([])
-    setCheckoutOpen(false)
-    setCartOpen(false)
+  const settleOrder = () => {
+    if (!lastOrder || lastOrder.status !== 'open') return
+    const paidAt = new Date()
+    const paidOrder: CompletedOrder = { ...lastOrder, status: 'paid', paymentMethod, paidAt }
+    const updatedHistory = orderHistory.map((order) => order.number === paidOrder.number ? paidOrder : order)
+    if (!persistOrders(updatedHistory)) return
+    setOrderHistory(updatedHistory); setLastOrder(paidOrder); setPaymentOpen(false); setPage('tables')
   }
 
   return (
@@ -158,12 +170,9 @@ function App() {
         </a>
         <div className="topbar-note"><span className="open-dot" /> Dziś gotujemy z sercem</div>
         <nav className="app-navigation" aria-label="Nawigacja aplikacji">
-          <button className={page === 'order' ? 'app-nav-link active' : 'app-nav-link'} type="button" aria-current={page === 'order' ? 'page' : undefined} onClick={() => setPage('order')}>
-            <span aria-hidden="true">＋</span> Zamówienie
-          </button>
-          <button className={page === 'history' ? 'app-nav-link active' : 'app-nav-link'} type="button" aria-current={page === 'history' ? 'page' : undefined} onClick={() => setPage('history')}>
-            <span aria-hidden="true">▤</span> Historia <span className="app-nav-count">{orderHistory.length}</span>
-          </button>
+          <button className={page === 'tables' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => setPage('tables')}><span aria-hidden="true">▦</span> Stoliki <span className="app-nav-count">{openOrders.length}</span></button>
+          <button className={page === 'order' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => selectedTableId === null ? setPage('tables') : setPage('order')}><span aria-hidden="true">＋</span> Zamówienie</button>
+          <button className={page === 'history' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => setPage('history')}><span aria-hidden="true">▤</span> Historia <span className="app-nav-count">{orderHistory.length}</span></button>
         </nav>
         {page === 'order' && <button className="mobile-cart-button" type="button" onClick={() => setCartOpen((open) => !open)}>
           Koszyk <span>{itemCount}</span>
@@ -185,6 +194,7 @@ function App() {
         <div className="banner-sparkle sparkle-two" aria-hidden="true">✦</div>
       </section>
 
+      <section className="table-context" hidden={page !== 'order'} aria-label="Wybrany stolik"><div><span className="eyebrow">AKTUALNY STOLIK</span><h2>{selectedTableId === null ? 'Najpierw wybierz stolik' : 'Stolik ' + selectedTableId}</h2><p>{selectedOpenOrder ? 'Otwarty rachunek #' + String(selectedOpenOrder.number).padStart(4, '0') + ' · ' + formatPrice(selectedOpenOrder.total) : selectedTableId === null ? 'Wybierz stolik, aby rozpocząć rejestrację zamówienia.' : 'Nowy rachunek — dodaj pozycje z menu.'}</p></div><button className="secondary-button" type="button" onClick={() => setPage('tables')}>Wybierz stolik</button></section>
       <div className="content-layout" id="menu" hidden={page !== 'order'}>
         <section className="menu-section" aria-labelledby="menu-title">
           <div className="section-heading">
@@ -263,7 +273,7 @@ function App() {
           <div className="cart-summary">
             <div className="summary-line"><span>Liczba sztuk</span><span>{itemCount}</span></div>
             <div className="summary-line"><span>Razem</span><strong>{formatPrice(total)}</strong></div>
-            <button className="checkout-button" type="button" disabled={cart.length === 0} onClick={() => setCheckoutOpen(true)}>
+            <button className="checkout-button" type="button" disabled={cart.length === 0 || selectedTableId === null} onClick={() => setCheckoutOpen(true)}>
               Przejdź do podsumowania <span aria-hidden="true">→</span>
             </button>
             <p className="cart-footnote"><span aria-hidden="true">♡</span> Przygotowane z sercem, specjalnie dla Ciebie</p>
@@ -272,6 +282,13 @@ function App() {
       </div>
 
       </>}
+
+      <section className="tables-page" aria-labelledby="tables-title" hidden={page !== 'tables'}>
+        <div className="section-heading"><div><span className="eyebrow">SALA RESTAURACYJNA</span><h2 id="tables-title">Stoliki</h2></div><span className="menu-count">{TABLE_NUMBERS.length} stolików · {openOrders.length} zajętych</span></div>
+        <p className="tables-intro">Wybierz wolny stolik, aby zarejestrować zamówienie, albo otwórz zajęty, aby dopisać pozycje lub rozliczyć rachunek.</p>
+        {historyStorageWarning && <p className="history-storage-warning" role="status">{historyStorageWarning}</p>}
+        <div className="tables-grid">{TABLE_NUMBERS.map((tableId) => { const order = tableOrder(tableId); return <article className={order ? 'table-card occupied' : 'table-card available'} key={tableId}><div className="table-card-top"><span className="table-icon" aria-hidden="true">♧</span><span className={order ? 'table-status occupied-status' : 'table-status available-status'}>{order ? 'Zajęty' : 'Wolny'}</span></div><h3>Stolik {tableId}</h3>{order ? <><p>Rachunek #{String(order.number).padStart(4, '0')}</p><strong className="table-total">{formatPrice(order.total)}</strong><p className="table-item-count">{order.items.reduce((sum, item) => sum + item.quantity, 0)} szt. · otwarty rachunek</p></> : <p className="table-item-count">Gotowy na gości</p>}<button className="checkout-button table-open-button" type="button" onClick={() => selectTable(tableId)}>{order ? 'Otwórz rachunek' : 'Rozpocznij zamówienie'} <span aria-hidden="true">→</span></button>{order && <button className="table-pay-button" type="button" onClick={() => { setLastOrder(order); setPaymentOpen(true); setPaymentMethod('cash') }}>Rozlicz rachunek</button>}</article> })}</div>
+      </section>
 
       <section className="order-history" id="order-history" aria-labelledby="history-title" hidden={page !== 'history'}>
           <div className="section-heading">
@@ -292,7 +309,7 @@ function App() {
                   <div className="history-card-main">
                     <div>
                       <span className="history-order-number">Zamówienie #{String(order.number).padStart(4, '0')}</span>
-                      <time className="history-date" dateTime={order.completedAt.toISOString()}>{order.completedAt.toLocaleString('pl-PL')}</time>
+                      <time className="history-date" dateTime={order.completedAt.toISOString()}>{order.completedAt.toLocaleString('pl-PL')} · stolik {order.tableId}</time><span className={'order-status order-status-' + order.status}>{order.status === 'open' ? 'Otwarty — do rozliczenia' : order.status === 'paid' ? 'Rozliczony · ' + (order.paymentMethod === 'cash' ? 'gotówka' : 'karta') : 'Anulowany'}</span>
                       <span className="history-items">{order.items.reduce((sum, item) => sum + item.quantity, 0)} szt. · {order.items.length} {order.items.length === 1 ? 'pozycja' : [2, 3, 4].includes(order.items.length) ? 'pozycje' : 'pozycji'}</span>
                     </div>
                     <strong className="history-total">{formatPrice(order.total)}</strong>
@@ -315,8 +332,8 @@ function App() {
           <section className="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
             <button className="modal-close" type="button" aria-label="Zamknij podsumowanie" onClick={() => setCheckoutOpen(false)}>×</button>
             <span className="eyebrow">JESZCZE JEDEN KROK</span>
-            <h2 id="checkout-title">Podsumowanie zamówienia</h2>
-            <p className="modal-intro">Sprawdź, czy wszystko się zgadza. To wersja demonstracyjna — nie pobieramy żadnych płatności.</p>
+            <h2 id="checkout-title">Rejestracja rachunku</h2>
+            <p className="modal-intro">Sprawdź pozycje i zarejestruj rachunek. Płatność będzie rozliczona później.</p>
             <div className="checkout-lines">
               {cart.map(({ product, quantity }) => (
                 <div className="checkout-line" key={product.id}>
@@ -325,17 +342,21 @@ function App() {
                 </div>
               ))}
             </div>
-            <div className="checkout-total"><span>Do zapłaty w symulacji</span><strong>{formatPrice(total)}</strong></div>
-            <div className="demo-warning"><span aria-hidden="true">ⓘ</span> Kliknięcie „Potwierdź zamówienie” tylko zapisze numer i pokaże potwierdzenie. Nie jest to prawdziwa sprzedaż.</div>
+            <div className="checkout-total"><span>Wartość rachunku</span><strong>{formatPrice(total)}</strong></div>
+            <div className="demo-warning"><span aria-hidden="true">ⓘ</span> Zamówienie zostanie zapisane jako otwarty rachunek. Stolik pozostanie zajęty do czasu rozliczenia.</div>
             <div className="modal-actions">
               <button className="secondary-button" type="button" onClick={() => setCheckoutOpen(false)}>Wróć do koszyka</button>
-              <button className="checkout-button modal-confirm" type="button" onClick={completeOrder}>Potwierdź zamówienie <span aria-hidden="true">→</span></button>
+              <button className="checkout-button modal-confirm" type="button" onClick={completeOrder}>Zarejestruj rachunek <span aria-hidden="true">→</span></button>
             </div>
           </section>
         </div>
       )}
 
-      {lastOrder && (
+      {paymentOpen && lastOrder && (
+        <div className="modal-backdrop" role="presentation" onClick={(event) => { if (event.target === event.currentTarget) setPaymentOpen(false) }}><section className="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="payment-title"><button className="modal-close" type="button" aria-label="Zamknij rozliczenie" onClick={() => setPaymentOpen(false)}>×</button><span className="eyebrow">ZAMKNIĘCIE RACHUNKU</span><h2 id="payment-title">Rozlicz stolik {lastOrder.tableId}</h2><p className="modal-intro">Rachunek #{String(lastOrder.number).padStart(4, '0')} · potwierdź metodę po otrzymaniu płatności.</p><div className="checkout-total"><span>Do zapłaty</span><strong>{formatPrice(lastOrder.total)}</strong></div><div className="payment-methods" role="group" aria-label="Metoda płatności"><button type="button" className={paymentMethod === 'cash' ? 'payment-method selected' : 'payment-method'} aria-pressed={paymentMethod === 'cash'} onClick={() => setPaymentMethod('cash')}>💵 Gotówka</button><button type="button" className={paymentMethod === 'card' ? 'payment-method selected' : 'payment-method'} aria-pressed={paymentMethod === 'card'} onClick={() => setPaymentMethod('card')}>💳 Karta</button></div><div className="demo-warning"><span aria-hidden="true">ⓘ</span> To symulacja. Aplikacja nie pobiera prawdziwej płatności ani nie łączy się z terminalem.</div><div className="modal-actions"><button className="secondary-button" type="button" onClick={() => setPaymentOpen(false)}>Wróć</button><button className="checkout-button modal-confirm" type="button" onClick={settleOrder}>Potwierdź płatność <span aria-hidden="true">✓</span></button></div></section></div>
+      )}
+
+      {lastOrder && !paymentOpen && (
         <div className="modal-backdrop" role="presentation" onClick={(event) => {
           if (event.target === event.currentTarget) setLastOrder(null)
         }}>
@@ -343,12 +364,12 @@ function App() {
             <button className="modal-close" type="button" aria-label="Zamknij potwierdzenie" onClick={() => setLastOrder(null)}>×</button>
             <div className="success-mark" aria-hidden="true">✓</div>
             <span className="eyebrow">WSZYSTKO GOTOWE</span>
-            <h2 id="success-title">Dziękujemy za zamówienie!</h2>
-            <p className="modal-intro">Zamówienie <strong>#{String(lastOrder.number).padStart(4, '0')}</strong> jest dostępne w historii zamówień.</p>
+            <h2 id="success-title">{lastOrder.status === 'paid' ? 'Rachunek rozliczony!' : 'Zamówienie zarejestrowane!'}</h2>
+            <p className="modal-intro">Zamówienie <strong>#{String(lastOrder.number).padStart(4, '0')}</strong> przypisano do stolika <strong>{lastOrder.tableId}</strong>. {lastOrder.status === 'open' ? 'Rachunek oczekuje na płatność.' : 'Płatność została zarejestrowana.'}</p>
             <div className="receipt-preview">
               <div className="receipt-brand">Franczesko Restaurant</div>
               <div className="receipt-subtitle">POTWIERDZENIE DEMONSTRACYJNE · NIE JEST PARAGONEM FISKALNYM</div>
-              <div className="receipt-meta"><span>Numer</span><strong>#{String(lastOrder.number).padStart(4, '0')}</strong></div>
+              <div className="receipt-meta"><span>Numer</span><strong>#{String(lastOrder.number).padStart(4, '0')}</strong></div><div className="receipt-meta"><span>Stolik</span><strong>{lastOrder.tableId}</strong></div>
               <div className="receipt-meta"><span>Data</span><strong>{lastOrder.completedAt.toLocaleString('pl-PL')}</strong></div>
               {lastOrder.items.map(({ product, quantity }) => (
                 <div className="checkout-line" key={product.id}>
@@ -393,6 +414,7 @@ function App() {
               <span aria-hidden="true">↗</span>
             </button>
             {printMessage && <p className={`print-status print-status-${printStatus}`} role="status">{printMessage}</p>}
+            {lastOrder.status === 'open' && <button className="checkout-button" type="button" onClick={() => { setPaymentOpen(true); setPaymentMethod('cash') }}>Rozlicz rachunek <span aria-hidden="true">→</span></button>}
             <button className="secondary-button success-close" type="button" onClick={() => setLastOrder(null)}>Gotowe <span aria-hidden="true">✓</span></button>
           </section>
         </div>
