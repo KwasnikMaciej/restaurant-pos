@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { printTestReceipt } from './printing/mx06-printer'
+import { APP_VERSION } from './version'
 import './App.css'
 
 type Category = 'Wszystko' | 'Dania główne' | 'Pizza i burgery' | 'Przystawki' | 'Desery' | 'Napoje'
@@ -324,6 +325,7 @@ function App() {
         <span className="footer-brand">Franczesko Restaurant</span>
         <span>Mała restauracja, wielka przyjemność <span aria-hidden="true">♥</span></span>
         <span className="demo-note">Wersja demonstracyjna · bez płatności</span>
+        <span className="app-version">Wersja {APP_VERSION}</span>
       </footer>
     </main>
   )
