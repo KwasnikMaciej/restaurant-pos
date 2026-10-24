@@ -27,6 +27,9 @@ type CompletedOrder = {
   completedAt: Date
 }
 
+const ORDER_HISTORY_KEY = 'franczesko:order-history'
+const MAX_STORED_ORDERS = 100
+
 const categories: Category[] = [
   'Wszystko',
   'Dania główne',
@@ -54,20 +57,43 @@ const products: Product[] = [
 const formatPrice = (priceInGrosze: number) =>
   new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(priceInGrosze / 100)
 
+function loadOrderHistory(): CompletedOrder[] {
+  try {
+    const saved = window.localStorage.getItem(ORDER_HISTORY_KEY)
+    if (!saved) return []
+    const parsed: unknown = JSON.parse(saved)
+    if (!Array.isArray(parsed)) return []
+
+    return parsed.filter((value): value is Omit<CompletedOrder, 'completedAt'> & { completedAt: string } =>
+      typeof value === 'object' && value !== null &&
+      typeof value.number === 'number' && Array.isArray(value.items) &&
+      typeof value.total === 'number' && typeof value.completedAt === 'string' &&
+      Number.isFinite(Date.parse(value.completedAt))
+    ).map((order) => ({ ...order, completedAt: new Date(order.completedAt) }))
+      .slice(0, MAX_STORED_ORDERS)
+  } catch {
+    return []
+  }
+}
+
 function App() {
   const [activeCategory, setActiveCategory] = useState<Category>('Wszystko')
   const [cart, setCart] = useState<CartItem[]>([])
   const [cartOpen, setCartOpen] = useState(false)
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [lastOrder, setLastOrder] = useState<CompletedOrder | null>(null)
+  const [orderHistory, setOrderHistory] = useState<CompletedOrder[]>(loadOrderHistory)
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const [historyStorageWarning, setHistoryStorageWarning] = useState('')
   const [printStatus, setPrintStatus] = useState<'idle' | 'printing' | 'success' | 'error'>('idle')
   const [printMessage, setPrintMessage] = useState('')
   const [nextOrderNumber, setNextOrderNumber] = useState(() => {
     try {
       const lastNumber = Number.parseInt(window.localStorage.getItem('franczesko:last-order-number') ?? '0', 10)
-      return Number.isFinite(lastNumber) && lastNumber > 0 ? lastNumber + 1 : 1
+      const highestHistoryNumber = loadOrderHistory().reduce((highest, order) => Math.max(highest, order.number), 0)
+      return Math.max(Number.isFinite(lastNumber) ? lastNumber : 0, highestHistoryNumber) + 1
     } catch {
-      return 1
+      return loadOrderHistory().reduce((highest, order) => Math.max(highest, order.number), 0) + 1
     }
   })
 
@@ -105,10 +131,15 @@ function App() {
       completedAt: new Date(),
     }
 
+    const updatedHistory = [order, ...orderHistory].slice(0, MAX_STORED_ORDERS)
+    setOrderHistory(updatedHistory)
+
     try {
       window.localStorage.setItem('franczesko:last-order-number', String(order.number))
+      window.localStorage.setItem(ORDER_HISTORY_KEY, JSON.stringify(updatedHistory))
+      setHistoryStorageWarning('')
     } catch {
-      // Zamówienie nadal może zostać zrealizowane w tej sesji, nawet bez dostępu do localStorage.
+      setHistoryStorageWarning('Zamówienie jest dostępne w tej sesji, ale przeglądarka nie pozwoliła zapisać historii na stałe.')
     }
 
     setLastOrder(order)
@@ -126,6 +157,9 @@ function App() {
           <span className="brand-copy"><strong>Franczesko</strong><span>RESTAURANT</span></span>
         </a>
         <div className="topbar-note"><span className="open-dot" /> Dziś gotujemy z sercem</div>
+        <button className="history-toggle" type="button" aria-expanded={historyOpen} aria-controls="order-history" onClick={() => setHistoryOpen((open) => !open)}>
+          Historia <span>{orderHistory.length}</span>
+        </button>
         <button className="mobile-cart-button" type="button" onClick={() => setCartOpen((open) => !open)}>
           Koszyk <span>{itemCount}</span>
         </button>
@@ -144,6 +178,43 @@ function App() {
         <div className="banner-sparkle sparkle-one" aria-hidden="true">✳</div>
         <div className="banner-sparkle sparkle-two" aria-hidden="true">✦</div>
       </section>
+
+      {historyOpen && (
+        <section className="order-history" id="order-history" aria-labelledby="history-title">
+          <div className="section-heading">
+            <div><span className="eyebrow">POWRÓT DO POPRZEDNICH ZAMÓWIEŃ</span><h2 id="history-title">Historia zamówień</h2></div>
+            <span className="menu-count">{orderHistory.length} z {MAX_STORED_ORDERS}</span>
+          </div>
+          {historyStorageWarning && <p className="history-storage-warning" role="status">{historyStorageWarning}</p>}
+          {orderHistory.length === 0 ? (
+            <div className="history-empty">
+              <span aria-hidden="true">▤</span>
+              <h3>Jeszcze nie ma zamówień</h3>
+              <p>Po złożeniu pierwszego zamówienia pojawi się ono tutaj. Historia pozostaje na tym urządzeniu i w tej przeglądarce.</p>
+            </div>
+          ) : (
+            <div className="history-list">
+              {orderHistory.map((order) => (
+                <article className="history-card" key={order.number}>
+                  <div className="history-card-main">
+                    <div>
+                      <span className="history-order-number">Zamówienie #{String(order.number).padStart(4, '0')}</span>
+                      <time className="history-date" dateTime={order.completedAt.toISOString()}>{order.completedAt.toLocaleString('pl-PL')}</time>
+                      <span className="history-items">{order.items.reduce((sum, item) => sum + item.quantity, 0)} szt. · {order.items.length} {order.items.length === 1 ? 'pozycja' : 'pozycje'}</span>
+                    </div>
+                    <strong className="history-total">{formatPrice(order.total)}</strong>
+                  </div>
+                  <button className="history-details-button" type="button" onClick={() => {
+                    setLastOrder(order)
+                    setPrintStatus('idle')
+                    setPrintMessage('')
+                  }}>Szczegóły i potwierdzenie <span aria-hidden="true">→</span></button>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       <div className="content-layout" id="menu">
         <section className="menu-section" aria-labelledby="menu-title">
@@ -267,7 +338,7 @@ function App() {
             <div className="success-mark" aria-hidden="true">✓</div>
             <span className="eyebrow">WSZYSTKO GOTOWE</span>
             <h2 id="success-title">Dziękujemy za zamówienie!</h2>
-            <p className="modal-intro">Zamówienie <strong>#{String(lastOrder.number).padStart(4, '0')}</strong> zostało zapisane w tej sesji.</p>
+            <p className="modal-intro">Zamówienie <strong>#{String(lastOrder.number).padStart(4, '0')}</strong> jest dostępne w historii zamówień.</p>
             <div className="receipt-preview">
               <div className="receipt-brand">Franczesko Restaurant</div>
               <div className="receipt-subtitle">POTWIERDZENIE DEMONSTRACYJNE · NIE JEST PARAGONEM FISKALNYM</div>
@@ -291,7 +362,7 @@ function App() {
                 setPrintMessage('Wybierz MX06 Mini Printer w oknie Bluetooth. Przygotowujemy krótki wydruk testowy.')
                 const lines = [
                   'Franczesko Restaurant',
-                  'TEST WYDRUKU',
+                  'POTWIERDZENIE ZAMÓWIENIA',
                   'Potwierdzenie demonstracyjne',
                   '----------------------------',
                   `Zamówienie #${String(lastOrder.number).padStart(4, '0')}`,
