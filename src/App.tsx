@@ -5,7 +5,7 @@ import { APP_VERSION } from './version'
 declare const __BUILD_TIMESTAMP__: string
 import './App.css'
 
-type Category = 'Wszystko' | 'Dania główne' | 'Pizza i burgery' | 'Przystawki' | 'Desery' | 'Napoje'
+type Category = 'Wszystko' | 'Przystawki' | 'Zupy' | 'Dania główne' | 'Desery' | 'Napoje'
 
 type Product = {
   id: string
@@ -39,26 +39,36 @@ const MAX_STORED_ORDERS = 100
 
 const categories: Category[] = [
   'Wszystko',
-  'Dania główne',
-  'Pizza i burgery',
   'Przystawki',
+  'Zupy',
+  'Dania główne',
   'Desery',
   'Napoje',
 ]
 
 const products: Product[] = [
-  { id: 'soup', name: 'Domowy rosół', description: 'Z makaronem, marchewką i natką pietruszki', category: 'Dania główne', price: 1600, image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85', tag: 'Domowy klasyk' },
-  { id: 'cutlet', name: 'Schabowy z ziemniakami', description: 'Złocista panierka, ziemniaki i mizeria', category: 'Dania główne', price: 3200, image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=85', tag: 'Bestseller' },
-  { id: 'pierogi', name: 'Pierogi ruskie', description: 'Ręcznie lepione, z cebulką i śmietaną', category: 'Dania główne', price: 2600, image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=900&q=85' },
-  { id: 'pizza', name: 'Pizza Margherita', description: 'Sos pomidorowy, mozzarella, świeża bazylia', category: 'Pizza i burgery', price: 2900, image: 'https://images.unsplash.com/photo-1579751626657-72bc17010498?auto=format&fit=crop&w=900&q=85', tag: 'Prosto z pieca' },
-  { id: 'burger', name: 'Burger Franczesko', description: 'Wołowina, cheddar, sałata i sos firmowy', category: 'Pizza i burgery', price: 3400, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=85' },
-  { id: 'fries', name: 'Złociste frytki', description: 'Chrupiące ziemniaki z dipem czosnkowym', category: 'Przystawki', price: 1200, image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=900&q=85' },
-  { id: 'salad', name: 'Sałatka ogrodowa', description: 'Świeże warzywa, feta i lekki dressing', category: 'Przystawki', price: 2200, image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=85' },
-  { id: 'cake', name: 'Sernik domowy', description: 'Kremowy sernik z owocami sezonowymi', category: 'Desery', price: 1500, image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=900&q=85', tag: 'Słodka chwila' },
-  { id: 'icecream', name: 'Lody waniliowe', description: 'Trzy gałki z polewą czekoladową', category: 'Desery', price: 1300, image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=900&q=85' },
-  { id: 'lemonade', name: 'Lemoniada domowa', description: 'Cytryna, mięta i odrobina słodyczy', category: 'Napoje', price: 900, image: 'https://images.unsplash.com/photo-1513558161293-cdaf765edfd4?auto=format&fit=crop&w=900&q=85', tag: 'Orzeźwiająca' },
-  { id: 'compote', name: 'Kompot dnia', description: 'Owocowy, jak u babci', category: 'Napoje', price: 600, image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=900&q=85' },
-  { id: 'coffee', name: 'Kawa z mlekiem', description: 'Aromatyczna kawa, podawana na ciepło', category: 'Napoje', price: 1100, image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=85' },
+  { id: 'tatar', name: 'Tatar wołowy', description: 'Siekana wołowina, żółtko, ogórek kiszony, cebulka i grzanki', category: 'Przystawki', price: 3900, image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85' },
+  { id: 'bruschetta', name: 'Bruschetta z pomidorami', description: 'Grzanki, dojrzałe pomidory, bazylia i oliwa', category: 'Przystawki', price: 2600, image: 'https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?auto=format&fit=crop&w=900&q=85', tag: 'Wegetariańskie' },
+  { id: 'cheese', name: 'Ser panierowany z żurawiną', description: 'Chrupiący ser, żurawina i sałata z winegretem', category: 'Przystawki', price: 2900, image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=900&q=85' },
+  { id: 'fries', name: 'Frytki z dipem czosnkowym', description: 'Złociste frytki i domowy sos czosnkowy', category: 'Przystawki', price: 1600, image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=900&q=85' },
+
+  { id: 'soup', name: 'Rosół domowy', description: 'Bulion drobiowo-wołowy, makaron, marchew i natka pietruszki', category: 'Zupy', price: 1900, image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85', tag: 'Domowy klasyk' },
+  { id: 'zurek', name: 'Żurek z jajkiem i kiełbasą', description: 'Zakwas żytni, biała kiełbasa, jajko i majeranek', category: 'Zupy', price: 2600, image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=900&q=85' },
+  { id: 'tomato-soup', name: 'Krem pomidorowy', description: 'Pomidory, śmietanka, bazylia i grzanki', category: 'Zupy', price: 2200, image: 'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?auto=format&fit=crop&w=900&q=85', tag: 'Łagodny smak' },
+
+  { id: 'cutlet', name: 'Kotlet schabowy', description: 'Panierowany schab, ziemniaki puree i mizeria', category: 'Dania główne', price: 4200, image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=85', tag: 'Bestseller' },
+  { id: 'pierogi', name: 'Pierogi ruskie', description: 'Ręcznie lepione pierogi z twarogiem i ziemniakami, cebulka', category: 'Dania główne', price: 3200, image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=900&q=85' },
+  { id: 'salmon', name: 'Łosoś pieczony', description: 'Filet z łososia, pieczone ziemniaki i warzywa sezonowe', category: 'Dania główne', price: 5200, image: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=900&q=85' },
+  { id: 'burger', name: 'Burger wołowy', description: 'Wołowina, cheddar, sałata, pomidor i sos firmowy', category: 'Dania główne', price: 3900, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=85' },
+
+  { id: 'cake', name: 'Sernik domowy', description: 'Kremowy sernik z sosem owocowym', category: 'Desery', price: 2100, image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=900&q=85', tag: 'Domowy wypiek' },
+  { id: 'apple-pie', name: 'Szarlotka na ciepło', description: 'Jabłka z cynamonem, kruszonka i gałka lodów', category: 'Desery', price: 2300, image: 'https://images.unsplash.com/photo-1562007908-17c67e878c1b?auto=format&fit=crop&w=900&q=85' },
+  { id: 'icecream', name: 'Lody waniliowe', description: 'Trzy gałki lodów z polewą czekoladową', category: 'Desery', price: 1700, image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=900&q=85' },
+
+  { id: 'lemonade', name: 'Lemoniada domowa', description: 'Cytryna, mięta i lód — 400 ml', category: 'Napoje', price: 1400, image: 'https://images.unsplash.com/photo-1513558161293-cdaf765edfd4?auto=format&fit=crop&w=900&q=85', tag: 'Orzeźwiająca' },
+  { id: 'compote', name: 'Kompot dnia', description: 'Domowy napój owocowy — 250 ml', category: 'Napoje', price: 800, image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=900&q=85' },
+  { id: 'coffee', name: 'Kawa mleczna', description: 'Świeżo parzona kawa z mlekiem', category: 'Napoje', price: 1300, image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=85' },
+  { id: 'tea', name: 'Herbata z cytryną', description: 'Czarna herbata, cytryna i miód podawany osobno', category: 'Napoje', price: 1000, image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=900&q=85' },
 ]
 
 const formatPrice = (priceInGrosze: number) =>
