@@ -303,10 +303,44 @@ function App() {
       </>}
 
       <section className="tables-page" aria-labelledby="tables-title" hidden={page !== 'tables'}>
-        <div className="section-heading"><div><span className="eyebrow">SALA RESTAURACYJNA</span><h2 id="tables-title">Stoliki</h2></div><span className="menu-count">{TABLE_NUMBERS.length} stolików · {openOrders.length} zajętych</span></div>
-        <p className="tables-intro">Wybierz wolny stolik, aby zarejestrować zamówienie, albo otwórz zajęty, aby dopisać pozycje lub rozliczyć rachunek.</p>
+        <div className="tables-page-heading">
+          <div>
+            <span className="eyebrow">SALA RESTAURACYJNA</span>
+            <h2 id="tables-title">Stoliki</h2>
+            <p className="tables-intro">Wybierz stolik, aby rozpocząć zamówienie lub wrócić do otwartego rachunku.</p>
+          </div>
+          <div className="tables-legend" aria-label="Legenda statusów">
+            <span><i className="legend-dot legend-dot-free" /> Wolny</span>
+            <span><i className="legend-dot legend-dot-busy" /> Zajęty</span>
+          </div>
+        </div>
         {historyStorageWarning && <p className="history-storage-warning" role="status">{historyStorageWarning}</p>}
-        <div className="tables-grid">{TABLE_NUMBERS.map((tableId) => { const order = tableOrder(tableId); return <article className={order ? 'table-card occupied' : 'table-card available'} key={tableId}><div className="table-card-top"><span className="table-icon" aria-hidden="true">♧</span><span className={order ? 'table-status occupied-status' : 'table-status available-status'}>{order ? 'Zajęty' : 'Wolny'}</span></div><h3>Stolik {tableId}</h3>{order ? <><p>Rachunek #{String(order.number).padStart(4, '0')}</p><strong className="table-total">{formatPrice(order.total)}</strong><p className="table-item-count">{order.items.reduce((sum, item) => sum + item.quantity, 0)} szt. · otwarty rachunek</p></> : <p className="table-item-count">Gotowy na gości</p>}<button className="checkout-button table-open-button" type="button" onClick={() => selectTable(tableId)}>{order ? 'Otwórz rachunek' : 'Rozpocznij zamówienie'} <span aria-hidden="true">→</span></button>{order && <button className="table-pay-button" type="button" onClick={() => { setLastOrder(order); setPaymentOpen(true); setPaymentMethod('cash') }}>Rozlicz rachunek</button>}</article> })}</div>
+        <div className="table-metrics" aria-label="Podsumowanie sali">
+          <article className="table-metric table-metric-free"><span className="metric-icon" aria-hidden="true">✓</span><div><span>Wolne stoliki</span><strong>{TABLE_NUMBERS.length - openOrders.length}</strong></div></article>
+          <article className="table-metric table-metric-busy"><span className="metric-icon" aria-hidden="true">↗</span><div><span>Zajęte stoliki</span><strong>{openOrders.length}</strong></div></article>
+          <article className="table-metric table-metric-total"><span className="metric-icon" aria-hidden="true">zł</span><div><span>Otwarte rachunki</span><strong>{formatPrice(openOrders.reduce((sum, order) => sum + order.total, 0))}</strong></div></article>
+        </div>
+        <div className="tables-grid">{TABLE_NUMBERS.map((tableId) => {
+          const order = tableOrder(tableId)
+          const itemCountForTable = order?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0
+          return <article className={order ? 'table-card occupied' : 'table-card available'} key={tableId}>
+            <div className="table-card-top">
+              <span className="table-icon" aria-hidden="true">{order ? '●' : '○'}</span>
+              <span className={order ? 'table-status occupied-status' : 'table-status available-status'}><i className="table-status-dot" />{order ? 'Zajęty' : 'Wolny'}</span>
+            </div>
+            <h3>Stolik <span>{String(tableId).padStart(2, '0')}</span></h3>
+            {order ? <>
+              <p className="table-order-number">Rachunek #{String(order.number).padStart(4, '0')}</p>
+              <strong className="table-total">{formatPrice(order.total)}</strong>
+              <p className="table-item-count">{itemCountForTable} {itemCountForTable === 1 ? 'pozycja' : itemCountForTable >= 2 && itemCountForTable <= 4 ? 'pozycje' : 'pozycji'} w rachunku</p>
+            </> : <>
+              <strong className="table-total table-total-empty">—</strong>
+              <p className="table-item-count">Gotowy na gości</p>
+            </>}
+            <button className="checkout-button table-open-button" type="button" onClick={() => selectTable(tableId)}>{order ? 'Otwórz rachunek' : 'Nowe zamówienie'} <span aria-hidden="true">→</span></button>
+            {order && <button className="table-pay-button" type="button" onClick={() => { setLastOrder(order); setPaymentOpen(true); setPaymentMethod('cash') }}>Rozlicz rachunek</button>}
+          </article>
+        })}</div>
       </section>
 
       <section className="order-history" id="order-history" aria-labelledby="history-title" hidden={page !== 'history'}>
