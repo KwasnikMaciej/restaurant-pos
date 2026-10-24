@@ -9,7 +9,7 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 - [x] Wybrać ESLint.
 - [x] Uruchomić aplikację lokalnie.
 - [x] Utworzyć repozytorium Git i wykonać pierwszy push do prywatnego GitHuba.
-- [ ] Dodać dokumentację projektu.
+- [x] Dodać dokumentację projektu.
 - [ ] Sprawdzić, czy lokalny projekt jest czysty po dodaniu dokumentacji.
 - [ ] Zweryfikować `npm run lint` i `npm run build`.
 
