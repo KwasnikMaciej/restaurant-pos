@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { addItemsToOpenOrder, calculateOrderTotal, getOpenOrderForTable, getTableStatus, markOrderPaid } from './orders.ts'
+import { addItemsToOpenOrder, calculateOrderTotal, getTableStatus, markOrderPaid } from './orders.ts'
 import type { OrderLine, RestaurantOrder } from './orders.ts'
 
 const soup: OrderLine = { productId: 'soup', name: 'Rosół', unitPrice: 1600, quantity: 2 }
