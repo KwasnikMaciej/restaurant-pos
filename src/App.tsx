@@ -18,6 +18,13 @@ type CartItem = {
   quantity: number
 }
 
+type CompletedOrder = {
+  number: number
+  items: CartItem[]
+  total: number
+  completedAt: Date
+}
+
 const categories: Category[] = [
   'Wszystko',
   'Dania główne',
@@ -49,6 +56,16 @@ function App() {
   const [activeCategory, setActiveCategory] = useState<Category>('Wszystko')
   const [cart, setCart] = useState<CartItem[]>([])
   const [cartOpen, setCartOpen] = useState(false)
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [lastOrder, setLastOrder] = useState<CompletedOrder | null>(null)
+  const [nextOrderNumber, setNextOrderNumber] = useState(() => {
+    try {
+      const lastNumber = Number.parseInt(window.localStorage.getItem('franczesko:last-order-number') ?? '0', 10)
+      return Number.isFinite(lastNumber) && lastNumber > 0 ? lastNumber + 1 : 1
+    } catch {
+      return 1
+    }
+  })
 
   const visibleProducts = useMemo(
     () => activeCategory === 'Wszystko' ? products : products.filter((product) => product.category === activeCategory),
@@ -72,6 +89,29 @@ function App() {
     setCart((current) => current
       .map((item) => item.product.id === productId ? { ...item, quantity: item.quantity + change } : item)
       .filter((item) => item.quantity > 0))
+  }
+
+  const completeOrder = () => {
+    if (cart.length === 0) return
+
+    const order: CompletedOrder = {
+      number: nextOrderNumber,
+      items: cart.map((item) => ({ ...item })),
+      total,
+      completedAt: new Date(),
+    }
+
+    try {
+      window.localStorage.setItem('franczesko:last-order-number', String(order.number))
+    } catch {
+      // Zamówienie nadal może zostać zrealizowane w tej sesji, nawet bez dostępu do localStorage.
+    }
+
+    setLastOrder(order)
+    setNextOrderNumber((number) => number + 1)
+    setCart([])
+    setCheckoutOpen(false)
+    setCartOpen(false)
   }
 
   return (
@@ -179,13 +219,69 @@ function App() {
           <div className="cart-summary">
             <div className="summary-line"><span>Liczba sztuk</span><span>{itemCount}</span></div>
             <div className="summary-line"><span>Razem</span><strong>{formatPrice(total)}</strong></div>
-            <button className="checkout-button" type="button" disabled={cart.length === 0} onClick={() => window.alert('Podsumowanie zamówienia dodamy w kolejnym etapie. Na razie nic nie zostało zamówione.')}>
+            <button className="checkout-button" type="button" disabled={cart.length === 0} onClick={() => setCheckoutOpen(true)}>
               Przejdź do podsumowania <span aria-hidden="true">→</span>
             </button>
             <p className="cart-footnote"><span aria-hidden="true">♡</span> Przygotowane z sercem, specjalnie dla Ciebie</p>
           </div>
         </aside>
       </div>
+
+      {checkoutOpen && (
+        <div className="modal-backdrop" role="presentation" onClick={(event) => {
+          if (event.target === event.currentTarget) setCheckoutOpen(false)
+        }}>
+          <section className="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+            <button className="modal-close" type="button" aria-label="Zamknij podsumowanie" onClick={() => setCheckoutOpen(false)}>×</button>
+            <span className="eyebrow">JESZCZE JEDEN KROK</span>
+            <h2 id="checkout-title">Podsumowanie zamówienia</h2>
+            <p className="modal-intro">Sprawdź, czy wszystko się zgadza. To wersja demonstracyjna — nie pobieramy żadnych płatności.</p>
+            <div className="checkout-lines">
+              {cart.map(({ product, quantity }) => (
+                <div className="checkout-line" key={product.id}>
+                  <span>{product.name} <strong>× {quantity}</strong></span>
+                  <strong>{formatPrice(product.price * quantity)}</strong>
+                </div>
+              ))}
+            </div>
+            <div className="checkout-total"><span>Do zapłaty w symulacji</span><strong>{formatPrice(total)}</strong></div>
+            <div className="demo-warning"><span aria-hidden="true">ⓘ</span> Kliknięcie „Potwierdź zamówienie” tylko zapisze numer i pokaże potwierdzenie. Nie jest to prawdziwa sprzedaż.</div>
+            <div className="modal-actions">
+              <button className="secondary-button" type="button" onClick={() => setCheckoutOpen(false)}>Wróć do koszyka</button>
+              <button className="checkout-button modal-confirm" type="button" onClick={completeOrder}>Potwierdź zamówienie <span aria-hidden="true">→</span></button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {lastOrder && (
+        <div className="modal-backdrop" role="presentation" onClick={(event) => {
+          if (event.target === event.currentTarget) setLastOrder(null)
+        }}>
+          <section className="checkout-modal success-modal" role="dialog" aria-modal="true" aria-labelledby="success-title">
+            <button className="modal-close" type="button" aria-label="Zamknij potwierdzenie" onClick={() => setLastOrder(null)}>×</button>
+            <div className="success-mark" aria-hidden="true">✓</div>
+            <span className="eyebrow">WSZYSTKO GOTOWE</span>
+            <h2 id="success-title">Dziękujemy za zamówienie!</h2>
+            <p className="modal-intro">Zamówienie <strong>#{String(lastOrder.number).padStart(4, '0')}</strong> zostało zapisane w tej sesji.</p>
+            <div className="receipt-preview">
+              <div className="receipt-brand">Franczesko Restaurant</div>
+              <div className="receipt-subtitle">POTWIERDZENIE DEMONSTRACYJNE · NIE JEST PARAGONEM FISKALNYM</div>
+              <div className="receipt-meta"><span>Numer</span><strong>#{String(lastOrder.number).padStart(4, '0')}</strong></div>
+              <div className="receipt-meta"><span>Data</span><strong>{lastOrder.completedAt.toLocaleString('pl-PL')}</strong></div>
+              {lastOrder.items.map(({ product, quantity }) => (
+                <div className="checkout-line" key={product.id}>
+                  <span>{product.name} <strong>× {quantity}</strong></span>
+                  <strong>{formatPrice(product.price * quantity)}</strong>
+                </div>
+              ))}
+              <div className="checkout-total"><span>RAZEM</span><strong>{formatPrice(lastOrder.total)}</strong></div>
+              <p className="receipt-disclaimer">To wyłącznie potwierdzenie w aplikacji demonstracyjnej. Nie jest dokumentem księgowym ani fiskalnym.</p>
+            </div>
+            <button className="checkout-button success-close" type="button" onClick={() => setLastOrder(null)}>Gotowe <span aria-hidden="true">✓</span></button>
+          </section>
+        </div>
+      )}
 
       <footer className="site-footer">
         <span className="footer-brand">Franczesko Restaurant</span>
