@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { printTestReceipt } from './printing/mx06-printer'
 import './App.css'
 
 type Category = 'Wszystko' | 'Dania główne' | 'Pizza i burgery' | 'Przystawki' | 'Desery' | 'Napoje'
@@ -58,6 +59,8 @@ function App() {
   const [cartOpen, setCartOpen] = useState(false)
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [lastOrder, setLastOrder] = useState<CompletedOrder | null>(null)
+  const [printStatus, setPrintStatus] = useState<'idle' | 'printing' | 'success' | 'error'>('idle')
+  const [printMessage, setPrintMessage] = useState('')
   const [nextOrderNumber, setNextOrderNumber] = useState(() => {
     try {
       const lastNumber = Number.parseInt(window.localStorage.getItem('franczesko:last-order-number') ?? '0', 10)
@@ -278,7 +281,41 @@ function App() {
               <div className="checkout-total"><span>RAZEM</span><strong>{formatPrice(lastOrder.total)}</strong></div>
               <p className="receipt-disclaimer">To wyłącznie potwierdzenie w aplikacji demonstracyjnej. Nie jest dokumentem księgowym ani fiskalnym.</p>
             </div>
-            <button className="checkout-button success-close" type="button" onClick={() => setLastOrder(null)}>Gotowe <span aria-hidden="true">✓</span></button>
+            <button
+              className="checkout-button print-button"
+              type="button"
+              disabled={printStatus === 'printing'}
+              onClick={async () => {
+                setPrintStatus('printing')
+                setPrintMessage('Wybierz MX06 Mini Printer w oknie Bluetooth. Przygotowujemy krótki wydruk testowy.')
+                const lines = [
+                  'Franczesko Restaurant',
+                  'TEST WYDRUKU',
+                  'Potwierdzenie demonstracyjne',
+                  '----------------------------',
+                  `Zamówienie #${String(lastOrder.number).padStart(4, '0')}`,
+                  lastOrder.completedAt.toLocaleString('pl-PL'),
+                  ...lastOrder.items.map(({ product, quantity }) => `${product.name} x${quantity}  ${formatPrice(product.price * quantity)}`),
+                  '----------------------------',
+                  `RAZEM: ${formatPrice(lastOrder.total)}`,
+                  'To nie jest paragon fiskalny.',
+                  'Dziekujemy i smacznego!',
+                ]
+                try {
+                  await printTestReceipt(lines)
+                  setPrintStatus('success')
+                  setPrintMessage('Wysłano dane do drukarki. Sprawdź wydruk — to potwierdzenie transmisji, nie czujnik fizycznego wydruku.')
+                } catch (error) {
+                  setPrintStatus('error')
+                  setPrintMessage(error instanceof Error ? error.message : 'Nie udało się wydrukować potwierdzenia.')
+                }
+              }}
+            >
+              {printStatus === 'printing' ? 'Łączenie i drukowanie…' : 'Drukuj potwierdzenie'}
+              <span aria-hidden="true">↗</span>
+            </button>
+            {printMessage && <p className={`print-status print-status-${printStatus}`} role="status">{printMessage}</p>}
+            <button className="secondary-button success-close" type="button" onClick={() => setLastOrder(null)}>Gotowe <span aria-hidden="true">✓</span></button>
           </section>
         </div>
       )}
