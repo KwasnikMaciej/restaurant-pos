@@ -14,18 +14,19 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 - [ ] Zweryfikować `npm run lint` i `npm run build` lokalnie.
 - [x] Dodać workflow CI w GitHub Actions (lint + build).
 - [x] Opisać konfigurację hostingu i CD w `docs/DEPLOYMENT.md`.
-- [ ] Jednorazowo połączyć repozytorium z hostingiem HTTPS i wykonać pierwsze wdrożenie.
-- [ ] Potwierdzić, że opublikowana strona otwiera się na tablecie.
+- [x] Połączyć repozytorium z hostingiem HTTPS i wykonać pierwsze wdrożenie.
+- [ ] Potwierdzić, że opublikowana strona otwiera się na tablecie po wdrożeniu ekranu POS.
 
 ## Etap 1 — Podstawowy interfejs POS
 
-- [ ] Zaprojektować układ przeznaczony do obsługi dotykiem na tablecie.
-- [ ] Zdefiniować model produktu: identyfikator, nazwa, kategoria, cena.
-- [ ] Przygotować przykładowe menu dań i napojów.
-- [ ] Wyświetlać menu i filtrować produkty według kategorii.
-- [ ] Zbudować koszyk z ilościami, usuwaniem pozycji i sumą.
-- [ ] Obsłużyć pusty koszyk i stany brzegowe.
-- [ ] Sprawdzić czytelność na docelowym tablecie.
+- [x] Zaprojektować układ przeznaczony do obsługi dotykiem na tablecie.
+- [x] Zdefiniować model produktu: identyfikator, nazwa, kategoria, cena.
+- [x] Przygotować przykładowe menu dań i napojów.
+- [x] Wyświetlać menu i filtrować produkty według kategorii.
+- [x] Zbudować koszyk z ilościami, usuwaniem pozycji i sumą.
+- [x] Obsłużyć pusty koszyk i stany brzegowe (ilość nie spada poniżej zera, usunięcie pozycji po zmniejszeniu do zera).
+- [ ] Sprawdzić czytelność i obsługę dotykową na docelowym tablecie.
+- [ ] Potwierdzić, że CI przechodzi dla implementacji ekranu POS.
 
 ## Etap 2 — Finalizacja zamówienia
 
@@ -58,7 +59,6 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 
 ## Etap 5 — Wydanie na urządzeniu
 
-- [ ] Przygotować sposób uruchamiania aplikacji przez HTTPS, jeśli aplikacja będzie hostowana zdalnie.
 - [ ] Zweryfikować Web Bluetooth na docelowym urządzeniu po wdrożeniu.
 - [ ] Rozważyć instalację PWA i zachowanie po ponownym uruchomieniu tabletu.
 - [ ] Spisać instrukcję wdrożenia, uruchamiania i diagnostyki.
