@@ -165,9 +165,9 @@ function App() {
             <span aria-hidden="true">▤</span> Historia <span className="app-nav-count">{orderHistory.length}</span>
           </button>
         </nav>
-        <button className="mobile-cart-button" type="button" onClick={() => setCartOpen((open) => !open)}>
+        {page === 'order' && <button className="mobile-cart-button" type="button" onClick={() => setCartOpen((open) => !open)}>
           Koszyk <span>{itemCount}</span>
-        </button>
+        </button>}
       </header>
 
       {page === 'order' && <>
