@@ -35,7 +35,7 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 - [x] Dodać numerację zamówień zapisywaną lokalnie (ostatni numer w localStorage; bez historii zamówień).
 - [x] Przygotować dane zamówienia i podgląd potwierdzenia z datą, numerem, pozycjami i sumą.
 - [x] Dodać komunikat sukcesu i jasne oznaczenie, że potwierdzenie nie jest paragonem fiskalnym.
-- [x] Na MVP pozostawić historię zamówień poza zakresem; po finalizacji zachowujemy jedynie ostatnie potwierdzenie w pamięci aplikacji.
+- [x] Dodać lokalną historię ostatnich 100 zamówień w `localStorage`, z możliwością ponownego otwarcia szczegółów i potwierdzenia.
 
 ## Etap 3 — Rozpoznanie i integracja drukarki (wstrzymany)
 
@@ -55,8 +55,8 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 
 ## Etap 4 — Funkcjonalności aplikacji i dane lokalne
 
-- [ ] Ustalić, jakie dane należy przechowywać lokalnie.
-- [ ] Ocenić potrzebę historii zamówień; jeśli będzie potrzebna, zapisać ją w pamięci lokalnej przeglądarki.
+- [x] Ustalić dane przechowywane lokalnie: numer, pozycje, ceny, suma i data ukończenia zamówienia.
+- [x] Zapisywać maksymalnie 100 ostatnich zamówień w `localStorage` i umożliwić ponowne otwarcie szczegółów.
 - [ ] Dopracować komunikaty, dostępność i wygodę obsługi dotykowej.
 - [ ] Przetestować odświeżenie aplikacji i zachowanie bieżącego zamówienia.
 - [ ] Wybrać i wdrożyć kolejną funkcjonalność POS przed powrotem do szczegółowych testów drukarki.
