@@ -70,3 +70,11 @@ npm run build
 ```
 
 Dalsze testy automatyczne dodamy wraz z logiką koszyka i zamówienia.
+
+
+## Stoliki i rachunki
+
+- Jeden otwarty rachunek jest przypisany do stolika; status stolika wynika z istnienia rachunku `open`.
+- Kolejne pozycje dopisujemy do tego samego rachunku, zachowując jego numer.
+- Rozliczenie jest osobną operacją, zapisuje metodę `cash` lub `card` i czas rozliczenia.
+- Płatność jest symulowana; nie przechowujemy danych karty i nie komunikujemy się z terminalem.
