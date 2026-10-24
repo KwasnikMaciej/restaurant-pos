@@ -2,8 +2,9 @@ import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
 import { defineConfig } from 'vite'
 
-// https://vite.dev/config/
+// GitHub Pages serves this project under /restaurant-pos/.
 export default defineConfig({
+  base: '/restaurant-pos/',
   plugins: [
     react(),
     babel({ presets: [reactCompilerPreset()] })
