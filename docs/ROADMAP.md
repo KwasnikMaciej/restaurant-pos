@@ -1,6 +1,6 @@
 # Plan prac
 
-Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wykonany i zweryfikowany. Integrację drukarki chwilowo wstrzymujemy po potwierdzeniu pierwszego poprawnego wydruku; wrócimy do testów jakości i błędów, gdy będzie dostępny papier.
+Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wykonany i zweryfikowany. **Priorytetem na teraz jest ustabilizowanie drukowania niefiskalnych paragonów**: najpierw krótki test komunikacji i protokołu, następnie kontrolowany wydruk przykładowego zamówienia, diagnostyka błędów oraz testy na docelowym tablecie. Nie rozwijamy w tym czasie nowych funkcji POS, które nie wspierają tego celu. Nie oznaczamy wydruku jako zweryfikowanego sprzętowo, dopóki test na fizycznej drukarce z papierem nie zakończy się powodzeniem.
 
 ## Etap 0 — Fundamenty
 
@@ -37,7 +37,7 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 - [x] Dodać komunikat sukcesu i jasne oznaczenie, że potwierdzenie nie jest paragonem fiskalnym.
 - [x] Dodać lokalną historię ostatnich 100 zamówień w `localStorage`, z możliwością ponownego otwarcia szczegółów i potwierdzenia.
 
-## Etap 3 — Rozpoznanie i integracja drukarki (wstrzymany)
+## Etap 3 — Stabilizacja integracji drukarki (priorytet bieżący)
 
 - [x] Potwierdzić, że Chrome na Androidzie 16 łączy się z `MX06 Mini Printer` i potrafi wykonać testowy wydruk.
 - [x] Potwierdzić wymagania Web Bluetooth: bezpieczny kontekst HTTPS i wybór urządzenia po geście użytkownika.
@@ -45,7 +45,19 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 - [x] Przygotować monochromatyczny obraz potwierdzenia, aby nie polegać na kodowaniu znaków w firmware drukarki.
 - [x] Wydzielić adapter Bluetooth i formatowanie pakietów do `src/printing/mx06-printer.ts`.
 - [x] Dodać w potwierdzeniu zamówienia przycisk wydruku uruchamiany gestem użytkownika.
-- [x] Potwierdzić na własnym egzemplarzu, że aplikacja potrafi połączyć się z drukarką i uzyskać poprawny wydruk testowy (2026-10-24; test jakości nieukończony z powodu braku papieru).
+- [x] Dodać ekran statusu połączenia Bluetooth i obsługę ręcznego połączenia / rozłączenia.
+- [x] Dodać przycisk krótkiego testu drukowania: `TEST` oraz `Drukarka OK` (wymaga papieru do weryfikacji fizycznego wyniku).
+- [ ] **P0 — Wykonać krótki wydruk testowy na fizycznej drukarce** po założeniu papieru; sprawdzić, czy urządzenie nie tylko przyjmuje połączenie, ale faktycznie drukuje.
+- [ ] **P0 — Zweryfikować protokół i stabilność transmisji**: potwierdzić, że ramki i parametry w `src/printing/mx06-printer.ts` są poprawne dla konkretnego egzemplarza; nie uznawać braku wyjątku z API za dowód poprawnego wydruku.
+- [ ] **P0 — Zweryfikować paragon z przykładowego zamówienia**: pozycje, ilości, ceny jednostkowe, suma, numer, data i czytelne oznaczenie „wydruk niefiskalny”.
+- [ ] **P0 — Sprawdzić układ i zużycie papieru**: marginesy, odstępy, obcięcie tekstu, długie nazwy, puste wiersze i długość końcowego podawania papieru.
+- [ ] **P0 — Sprawdzić polskie znaki i zawijanie tekstu**, w tym długie nazwy produktów i tekst mieszczący się przy obu krawędziach.
+- [ ] **P0 — Przetestować scenariusze awarii**: drukarka wyłączona / poza zasięgiem, anulowanie wyboru, utrata Bluetooth podczas transmisji oraz błąd zapisu do charakterystyki.
+- [ ] **P0 — Uporządkować stany UI**: rozróżniać połączenie, trwający wydruk, błąd i wysłanie danych; nie pokazywać sukcesu fizycznego wydruku, jeśli aplikacja potwierdziła jedynie wysłanie bajtów.
+- [ ] **P0 — Zabezpieczyć ponawianie wydruku**: ponowna próba nie tworzy nowego zamówienia, nie zmienia jego statusu ani nie wywołuje niezamierzonego wydruku podwójnego.
+- [ ] **P1 — Dodać testy automatyczne** formatowania / przygotowania wydruku, o ile logikę da się przetestować bez API przeglądarki; wyizolować zależności od Canvas i Web Bluetooth.
+- [ ] **P1 — Wykonać pełny test akceptacyjny na tablecie** w Chrome: zamówienie → finalizacja → wydruk → ponowna próba po błędzie.
+- [ ] Spisać wyniki testów na konkretnym modelu drukarki i wersji Chrome.
 - [x] Oddzielić status drukowania od statusu zamówienia; błąd wydruku nie cofa zamówienia.
 - [ ] Po uzupełnieniu papieru sprawdzić jakość wydruku: kompletność pozycji, ilości, ceny i sumy, długie nazwy, polskie znaki, numer/datę oraz oznaczenie niefiskalne.
 - [ ] Sprawdzić obsługę braku papieru, jeśli drukarka udostępnia taki stan aplikacji; nie zakładać, że da się go wiarygodnie wykryć przez Web Bluetooth.
@@ -60,7 +72,7 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 - [x] Wydzielić historię do osobnej podstrony i dodać nawigację „Zamówienie” / „Historia”.
 - [ ] Dopracować komunikaty, dostępność i wygodę obsługi dotykowej.
 - [ ] Przetestować odświeżenie aplikacji i zachowanie bieżącego zamówienia.
-- [ ] Wybrać i wdrożyć kolejną funkcjonalność POS przed powrotem do szczegółowych testów drukarki.
+- [ ] Po stabilizacji drukarki wybrać następną funkcjonalność POS.
 
 ## Etap 5 — Wydanie na urządzeniu
 
@@ -71,4 +83,4 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 
 ## Zasada zakończenia etapu
 
-Etap uznajemy za ukończony dopiero po sprawdzeniu działania na uruchomionej aplikacji. Samo napisanie kodu nie wystarcza.
+Etap uznajemy za ukończony dopiero po sprawdzeniu działania na uruchomionej aplikacji. Samo napisanie kodu nie wystarcza. **Etap drukarki nie jest ukończony bez fizycznego testu wydruku na docelowym urządzeniu z papierem.** CI (lint/build) potwierdza poprawność techniczną projektu, ale nie potwierdza kompatybilności sprzętowej.

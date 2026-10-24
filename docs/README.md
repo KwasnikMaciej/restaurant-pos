@@ -3,7 +3,7 @@
 Zacznij tutaj, jeśli wracasz do projektu po przerwie.
 
 1. [Założenia projektu](PROJECT-OVERVIEW.md) — cel, zakres MVP, technologia i kryteria ukończenia.
-2. [Plan prac](ROADMAP.md) — etapy, checklista i aktualny status.
+2. [Plan prac](ROADMAP.md) — etapy, checklista i aktualny status; aktualny priorytet to stabilizacja wydruku paragonów.
 3. [Architektura](ARCHITECTURE.md) — podział modułów, przepływ zamówienia i integracja drukarki.
 4. [Decyzje techniczne](DECISIONS.md) — zapis kluczowych decyzji i ich uzasadnień.
 5. [Hosting i CI/CD](DEPLOYMENT.md) — pipeline, jednorazowa konfiguracja hostingu i test na tablecie.
