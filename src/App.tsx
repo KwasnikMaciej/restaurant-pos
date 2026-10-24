@@ -86,6 +86,7 @@ function App() {
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null)
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash')
+  const [cardPaymentStatus, setCardPaymentStatus] = useState<'idle' | 'connecting' | 'waiting' | 'reading' | 'authorizing' | 'approved'>('idle')
   const [activeCategory, setActiveCategory] = useState<Category>('Wszystko')
   const [cart, setCart] = useState<CartItem[]>([])
   const [cartOpen, setCartOpen] = useState(false)
@@ -152,13 +153,31 @@ function App() {
     setCart([]); setCheckoutOpen(false); setCartOpen(false); setPage('tables')
   }
 
-  const settleOrder = () => {
+  const wait = (milliseconds: number) => new Promise((resolve) => window.setTimeout(resolve, milliseconds))
+
+  const startCardPayment = async () => {
+    if (!lastOrder || lastOrder.status !== 'open' || cardPaymentStatus !== 'idle') return
+    setPaymentMethod('card')
+    setCardPaymentStatus('connecting')
+    await wait(1200)
+    setCardPaymentStatus('waiting')
+    await wait(1800)
+    setCardPaymentStatus('reading')
+    await wait(1400)
+    setCardPaymentStatus('authorizing')
+    await wait(1800)
+    setCardPaymentStatus('approved')
+    await wait(900)
+    settleOrder('card')
+  }
+
+  const settleOrder = (method: 'cash' | 'card' = paymentMethod) => {
     if (!lastOrder || lastOrder.status !== 'open') return
     const paidAt = new Date()
-    const paidOrder: CompletedOrder = { ...lastOrder, status: 'paid', paymentMethod, paidAt }
+    const paidOrder: CompletedOrder = { ...lastOrder, status: 'paid', paymentMethod: method, paidAt }
     const updatedHistory = orderHistory.map((order) => order.number === paidOrder.number ? paidOrder : order)
     if (!persistOrders(updatedHistory)) return
-    setOrderHistory(updatedHistory); setLastOrder(paidOrder); setPaymentOpen(false); setPage('tables')
+    setOrderHistory(updatedHistory); setLastOrder(paidOrder); setPaymentOpen(false); setCardPaymentStatus('idle'); setPage('tables')
   }
 
   return (
@@ -353,7 +372,46 @@ function App() {
       )}
 
       {paymentOpen && lastOrder && (
-        <div className="modal-backdrop" role="presentation" onClick={(event) => { if (event.target === event.currentTarget) setPaymentOpen(false) }}><section className="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="payment-title"><button className="modal-close" type="button" aria-label="Zamknij rozliczenie" onClick={() => setPaymentOpen(false)}>×</button><span className="eyebrow">ZAMKNIĘCIE RACHUNKU</span><h2 id="payment-title">Rozlicz stolik {lastOrder.tableId}</h2><p className="modal-intro">Rachunek #{String(lastOrder.number).padStart(4, '0')} · potwierdź metodę po otrzymaniu płatności.</p><div className="checkout-total"><span>Do zapłaty</span><strong>{formatPrice(lastOrder.total)}</strong></div><div className="payment-methods" role="group" aria-label="Metoda płatności"><button type="button" className={paymentMethod === 'cash' ? 'payment-method selected' : 'payment-method'} aria-pressed={paymentMethod === 'cash'} onClick={() => setPaymentMethod('cash')}>💵 Gotówka</button><button type="button" className={paymentMethod === 'card' ? 'payment-method selected' : 'payment-method'} aria-pressed={paymentMethod === 'card'} onClick={() => setPaymentMethod('card')}>💳 Karta</button></div><div className="demo-warning"><span aria-hidden="true">ⓘ</span> To symulacja. Aplikacja nie pobiera prawdziwej płatności ani nie łączy się z terminalem.</div><div className="modal-actions"><button className="secondary-button" type="button" onClick={() => setPaymentOpen(false)}>Wróć</button><button className="checkout-button modal-confirm" type="button" onClick={settleOrder}>Potwierdź płatność <span aria-hidden="true">✓</span></button></div></section></div>
+        <div className="modal-backdrop" role="presentation" onClick={(event) => { if (event.target === event.currentTarget && cardPaymentStatus === 'idle') setPaymentOpen(false) }}>
+          <section className="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="payment-title">
+            {cardPaymentStatus === 'idle' && <button className="modal-close" type="button" aria-label="Zamknij rozliczenie" onClick={() => setPaymentOpen(false)}>×</button>}
+            <span className="eyebrow">ZAMKNIĘCIE RACHUNKU</span>
+            <h2 id="payment-title">{cardPaymentStatus === 'approved' ? 'Płatność zaakceptowana' : cardPaymentStatus !== 'idle' ? 'Płatność kartą' : 'Rozlicz stolik ' + lastOrder.tableId}</h2>
+            <p className="modal-intro">Rachunek #{String(lastOrder.number).padStart(4, '0')} · stolik {lastOrder.tableId}</p>
+            <div className="checkout-total"><span>Do zapłaty</span><strong>{formatPrice(lastOrder.total)}</strong></div>
+            {cardPaymentStatus === 'idle' ? <>
+              <div className="payment-methods" role="group" aria-label="Metoda płatności">
+                <button type="button" className={paymentMethod === 'cash' ? 'payment-method selected' : 'payment-method'} aria-pressed={paymentMethod === 'cash'} onClick={() => setPaymentMethod('cash')}>💵 Gotówka</button>
+                <button type="button" className={paymentMethod === 'card' ? 'payment-method selected' : 'payment-method'} aria-pressed={paymentMethod === 'card'} onClick={() => setPaymentMethod('card')}>💳 Karta</button>
+              </div>
+              <div className="demo-warning"><span aria-hidden="true">ⓘ</span> Tryb demonstracyjny — nie pobieramy prawdziwych płatności i nie łączymy się z terminalem.</div>
+              <div className="modal-actions">
+                <button className="secondary-button" type="button" onClick={() => setPaymentOpen(false)}>Wróć</button>
+                {paymentMethod === 'card'
+                  ? <button className="checkout-button modal-confirm" type="button" onClick={startCardPayment}>Rozpocznij płatność <span aria-hidden="true">→</span></button>
+                  : <button className="checkout-button modal-confirm" type="button" onClick={() => settleOrder('cash')}>Potwierdź gotówkę <span aria-hidden="true">✓</span></button>}
+              </div>
+            </> : <div className={cardPaymentStatus === 'approved' ? 'card-terminal-status terminal-approved' : 'card-terminal-status'} role="status" aria-live="polite">
+              {cardPaymentStatus !== 'approved' && <span className="terminal-spinner" aria-hidden="true" />}
+              <strong>{({
+                connecting: 'Łączenie z terminalem…',
+                waiting: 'Oczekiwanie na kartę',
+                reading: 'Odczytywanie karty…',
+                authorizing: 'Autoryzacja transakcji…',
+                approved: '✓ Transakcja zaakceptowana',
+              } as Record<Exclude<typeof cardPaymentStatus, 'idle'>, string>)[cardPaymentStatus]}</strong>
+              <p>{({
+                connecting: 'Nawiązywanie bezpiecznego połączenia z urządzeniem płatniczym.',
+                waiting: 'Zbliż kartę lub urządzenie do terminala. W tej symulacji przejdziemy dalej automatycznie.',
+                reading: 'Dane karty zostały odczytane — trwa przygotowanie transakcji.',
+                authorizing: 'Prośba o autoryzację jest przetwarzana przez operatora płatności.',
+                approved: 'Płatność została potwierdzona. Za chwilę zamkniemy rachunek.',
+              } as Record<Exclude<typeof cardPaymentStatus, 'idle'>, string>)[cardPaymentStatus]}</p>
+              <div className="terminal-progress"><span className={'terminal-progress-fill terminal-progress-' + cardPaymentStatus} /></div>
+              <small>SYMULACJA · BRAK POŁĄCZENIA Z PRAWDZIWYM TERMINALEM</small>
+            </div>}
+          </section>
+        </div>
       )}
 
       {lastOrder && !paymentOpen && (
