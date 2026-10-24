@@ -160,3 +160,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid #c16d4c; outline-offs
 .print-status-success { background: #e8efdf; color: #4f6e3d; }
 .print-status-error { background: #fae9e5; color: #9c3929; }
 .success-close { width: 100%; }
+
+
+.app-version { display: inline-flex; align-items: center; margin-top: 4px; color: #a99a8a; font-size: 10px; font-variant-numeric: tabular-nums; letter-spacing: .04em; }
