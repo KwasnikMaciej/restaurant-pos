@@ -71,3 +71,11 @@ Zapisujemy tutaj decyzje, które wpływają na zakres, technologię lub architek
 - **Decyzja:** oddzielamy widok składania zamówienia od widoku historii za pomocą wspólnej nawigacji aplikacji.
 - **Powód:** historia jest osobną funkcją i nie powinna rozwijać się wewnątrz ekranu menu/koszyka.
 - **Konsekwencje:** użytkownik przełącza się między „Zamówienie” i „Historia” bez utraty zapisanych zamówień. Koszyk pozostaje elementem strony zamówienia.
+
+
+## D-011 — Stabilizacja wydruku przed kolejnymi funkcjami POS
+
+- **Status:** zaakceptowana
+- **Decyzja:** bieżącym priorytetem jest doprowadzenie wydruku niefiskalnego paragonu do stanu powtarzalnego i sprawdzonego na fizycznej drukarce. Nowe funkcje POS odkładamy, jeśli nie wspierają bezpośrednio tego celu.
+- **Powód:** moduł wydruku jest kluczową częścią docelowego przepływu aplikacji, a obecne potwierdzenie transmisji nie jest równoznaczne z potwierdzeniem jakości fizycznego wydruku. Testy jakości są ograniczone do czasu założenia papieru.
+- **Konsekwencje:** plan testów, scenariusze awarii i kryteria ukończenia są prowadzone w `docs/ROADMAP.md`. Etap uznajemy za zakończony dopiero po testach na docelowym tablecie i drukarce, z udokumentowanym wynikiem. Druk pozostaje niefiskalny; płatności są symulowane.
