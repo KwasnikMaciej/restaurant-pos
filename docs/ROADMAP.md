@@ -25,17 +25,17 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 - [x] Wyświetlać menu i filtrować produkty według kategorii.
 - [x] Zbudować koszyk z ilościami, usuwaniem pozycji i sumą.
 - [x] Obsłużyć pusty koszyk i stany brzegowe (ilość nie spada poniżej zera, usunięcie pozycji po zmniejszeniu do zera).
-- [ ] Sprawdzić czytelność i obsługę dotykową na docelowym tablecie.
-- [ ] Potwierdzić, że CI przechodzi dla implementacji ekranu POS.
+- [x] Sprawdzić czytelność i obsługę dotykową na docelowym tablecie (test użytkownika 2026-10-24).
+- [ ] Potwierdzić, że CI przechodzi dla implementacji ekranu POS i finalizacji zamówienia.
 
 ## Etap 2 — Finalizacja zamówienia
 
-- [ ] Dodać ekran / panel podsumowania.
-- [ ] Dodać symulowaną finalizację bez prawdziwej płatności.
-- [ ] Ustalić numerację lokalnych zamówień.
-- [ ] Zaprojektować dane zamówienia potrzebne do paragonu.
-- [ ] Dodać komunikaty o sukcesie i błędach.
-- [ ] Zdecydować, czy historia zamówień wchodzi do pierwszej wersji MVP.
+- [x] Dodać panel podsumowania z listą pozycji i sumą.
+- [x] Dodać symulowaną finalizację bez prawdziwej płatności.
+- [x] Dodać numerację zamówień zapisywaną lokalnie (ostatni numer w localStorage; bez historii zamówień).
+- [x] Przygotować dane zamówienia i podgląd potwierdzenia z datą, numerem, pozycjami i sumą.
+- [x] Dodać komunikat sukcesu i jasne oznaczenie, że potwierdzenie nie jest paragonem fiskalnym.
+- [x] Na MVP pozostawić historię zamówień poza zakresem; po finalizacji zachowujemy jedynie ostatnie potwierdzenie w pamięci aplikacji.
 
 ## Etap 3 — Rozpoznanie i integracja drukarki
 
