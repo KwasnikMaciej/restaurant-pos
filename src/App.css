@@ -112,3 +112,42 @@ button:focus-visible, a:focus-visible { outline: 3px solid #c16d4c; outline-offs
   .cart-heading { padding: 18px 15px; } .cart-heading h2 { font-size: 20px; } .cart-summary { padding: 16px; } .site-footer { justify-content: center; flex-direction: column; gap: 8px; text-align: center; margin-top: 32px; } .demo-note { text-align: center; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+
+
+/* Symulowana finalizacja i potwierdzenie zamówienia */
+.modal-backdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; overflow-y: auto; padding: 24px; background: #2b2018a8; backdrop-filter: blur(4px); }
+.checkout-modal { position: relative; width: min(100%, 560px); max-height: calc(100vh - 48px); overflow-y: auto; padding: 34px; border: 1px solid #eadfd1; border-radius: 22px; background: #fffdf9; box-shadow: 0 24px 80px #21150f40; }
+.checkout-modal h2 { margin: 8px 38px 8px 0; color: #3b3028; font: 600 30px/1.2 'Playfair Display', serif; }
+.modal-close { position: absolute; top: 17px; right: 17px; width: 40px; height: 40px; border: 1px solid #eadfd1; border-radius: 50%; background: #fff8ef; color: #8f4b34; font-size: 26px; cursor: pointer; }
+.modal-intro { margin: 10px 0 22px; color: #8a7d70; font-size: 13px; line-height: 1.7; }
+.checkout-lines { display: grid; gap: 0; border-top: 1px solid #eee4d8; }
+.checkout-line { display: flex; align-items: start; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid #f1e8de; color: #665447; font-size: 12px; line-height: 1.5; }
+.checkout-line > span { min-width: 0; }
+.checkout-line > strong { flex-shrink: 0; color: #4c3a2e; }
+.checkout-line span strong { color: #a96a4e; white-space: nowrap; }
+.checkout-total { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 17px 0; color: #665447; font-size: 13px; }
+.checkout-total > strong { color: #a94f35; font: 600 27px 'Playfair Display', serif; white-space: nowrap; }
+.demo-warning { display: flex; gap: 10px; padding: 12px; border: 1px solid #eed8b7; border-radius: 10px; background: #fff5e5; color: #846340; font-size: 11px; line-height: 1.6; }
+.demo-warning > span { font-size: 16px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+.secondary-button { min-height: 48px; padding: 0 16px; border: 1px solid #e5d5c6; border-radius: 11px; background: #fffaf3; color: #80513c; font-size: 12px; font-weight: 700; cursor: pointer; }
+.modal-confirm { flex: 1; margin: 0; }
+.success-modal { text-align: center; }
+.success-modal h2 { margin-right: 0; }
+.success-mark { width: 54px; height: 54px; display: grid; place-items: center; margin: 0 auto 16px; border-radius: 50%; background: #e8efdf; color: #577344; font-size: 28px; font-weight: 700; }
+.receipt-preview { margin: 20px 0; padding: 22px; border: 1px dashed #d8c4b0; border-radius: 12px; background: #fffaf3; text-align: left; }
+.receipt-brand { color: #553d2e; font: 600 21px 'Playfair Display', serif; text-align: center; }
+.receipt-subtitle { margin: 8px 0 18px; color: #a14e35; font-size: 9px; font-weight: 700; line-height: 1.5; text-align: center; letter-spacing: .6px; }
+.receipt-meta { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; color: #887767; font-size: 11px; }
+.receipt-meta strong { color: #4c3a2e; text-align: right; }
+.receipt-preview .checkout-total { border-top: 1px dashed #d8c4b0; }
+.receipt-disclaimer { margin: 6px 0 0; color: #938477; font-size: 10px; line-height: 1.6; text-align: center; }
+.success-close { justify-content: center; }
+@media (max-width: 600px) {
+  .modal-backdrop { align-items: end; padding: 0; }
+  .checkout-modal { width: 100%; max-height: 92vh; padding: 28px 18px 22px; border-radius: 22px 22px 0 0; }
+  .checkout-modal h2 { font-size: 25px; }
+  .modal-actions { flex-direction: column-reverse; }
+  .modal-actions > button { width: 100%; min-height: 50px; }
+  .receipt-preview { padding: 17px 13px; }
+}
