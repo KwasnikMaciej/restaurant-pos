@@ -87,7 +87,6 @@ function App() {
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash')
   const [cardPaymentStatus, setCardPaymentStatus] = useState<'idle' | 'connecting' | 'waiting' | 'reading' | 'authorizing' | 'approved'>('idle')
-  const [cardPaymentError, setCardPaymentError] = useState('')
   const [activeCategory, setActiveCategory] = useState<Category>('Wszystko')
   const [cart, setCart] = useState<CartItem[]>([])
   const [cartOpen, setCartOpen] = useState(false)
@@ -159,7 +158,6 @@ function App() {
   const startCardPayment = async () => {
     if (!lastOrder || lastOrder.status !== 'open' || cardPaymentStatus !== 'idle') return
     setPaymentMethod('card')
-    setCardPaymentError('')
     setCardPaymentStatus('connecting')
     await wait(1200)
     setCardPaymentStatus('waiting')
@@ -179,7 +177,7 @@ function App() {
     const paidOrder: CompletedOrder = { ...lastOrder, status: 'paid', paymentMethod: method, paidAt }
     const updatedHistory = orderHistory.map((order) => order.number === paidOrder.number ? paidOrder : order)
     if (!persistOrders(updatedHistory)) return
-    setOrderHistory(updatedHistory); setLastOrder(paidOrder); setPaymentOpen(false); setCardPaymentStatus('idle'); setCardPaymentError(''); setPage('tables')
+    setOrderHistory(updatedHistory); setLastOrder(paidOrder); setPaymentOpen(false); setCardPaymentStatus('idle'); setPage('tables')
   }
 
   return (
