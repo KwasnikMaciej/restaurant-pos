@@ -248,3 +248,23 @@ button:focus-visible, a:focus-visible { outline: 3px solid #c16d4c; outline-offs
   .table-card .table-total { font-size: 1.2rem; }
 }
 @media (max-width: 420px) { .tables-grid { grid-template-columns: 1fr; } }
+
+
+/* Symulacja terminala płatniczego */
+.card-terminal-status { min-height: 210px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; margin: 20px 0 8px; padding: 25px 20px; border: 1px solid #eadfd1; border-radius: 16px; background: #fffaf3; text-align: center; }
+.card-terminal-status > strong { color: #49382c; font-size: 16px; }
+.card-terminal-status > p { max-width: 350px; margin: 0; color: #867668; font-size: 12px; line-height: 1.7; }
+.card-terminal-status > small { margin-top: 4px; color: #a09284; font-size: 9px; letter-spacing: .07em; }
+.terminal-spinner { width: 38px; height: 38px; border: 3px solid #eadfd1; border-top-color: #a94f35; border-radius: 50%; animation: terminal-spin .8s linear infinite; }
+@keyframes terminal-spin { to { transform: rotate(360deg); } }
+.terminal-progress { width: min(100%, 320px); height: 5px; overflow: hidden; border-radius: 99px; background: #eadfd1; }
+.terminal-progress-fill { display: block; height: 100%; border-radius: inherit; background: #a94f35; transition: width .35s ease; }
+.terminal-progress-connecting { width: 15%; }
+.terminal-progress-waiting { width: 35%; }
+.terminal-progress-reading { width: 55%; }
+.terminal-progress-authorizing { width: 82%; }
+.terminal-progress-approved { width: 100%; background: #4e8050; }
+.terminal-approved { border-color: #c9dec1; background: #f3f8ef; }
+.terminal-approved > strong { color: #3e7040; }
+.terminal-approved .terminal-progress { background: #dcebd4; }
+@media (prefers-reduced-motion: reduce) { .terminal-spinner { animation-duration: 2s; } .terminal-progress-fill { transition: none; } }
