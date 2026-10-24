@@ -196,7 +196,10 @@ export async function printTestReceipt(lines: string[]): Promise<void> {
     const packets = buildPrintPackets(rows)
 
     for (const data of packets) {
-      await characteristic.writeValueWithoutResponse(data)
+      // Materialize a fresh ArrayBuffer to satisfy the stricter DOM types in TypeScript 6.
+      const safeBuffer = new ArrayBuffer(data.byteLength)
+      new Uint8Array(safeBuffer).set(data)
+      await characteristic.writeValueWithoutResponse(safeBuffer)
       await sleep(30)
     }
   } finally {
