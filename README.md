@@ -1,78 +1,53 @@
-# React + TypeScript + Vite
+# Restaurant POS
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Minimalna aplikacja POS na tablet z Androidem do symulowania zamówień restauracyjnych. Docelowo umożliwi wybór dań i napojów, podsumowanie zamówienia oraz bezpośredni wydruk niefiskalnego paragonu na drukarce Bluetooth.
 
-Currently, two official plugins are available:
+## Status
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Projekt jest na etapie konfiguracji fundamentów. Aplikacja React + TypeScript + Vite uruchamia się lokalnie. Połączenie i testowy wydruk na drukarce `MX06 Mini Printer` zostały sprawdzone osobno w Chrome na Androidzie 16; integracja drukarki z aplikacją nie jest jeszcze zaimplementowana.
 
-## React Compiler
+## Dokumentacja
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- [Założenia projektu i zakres MVP](docs/PROJECT-OVERVIEW.md)
+- [Plan prac i checklista](docs/ROADMAP.md)
+- [Architektura początkowa](docs/ARCHITECTURE.md)
+- [Rejestr decyzji technicznych](docs/DECISIONS.md)
 
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
+## Wymagania
 
-## Expanding the ESLint configuration
+- Node.js i npm
+- Git
+- Przeglądarka wspierająca funkcje używane przez aplikację
+- Do testów drukowania: tablet z Androidem 16, Chrome i drukarka `MX06 Mini Printer`
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Uruchomienie lokalne
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+W katalogu projektu:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```powershell
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Vite pokaże adres lokalny, zwykle `http://localhost:5173/`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Kontrole
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```powershell
+npm run lint
+npm run build
 ```
+
+## Ważne ograniczenia
+
+- Płatność jest wyłącznie symulowana.
+- Aplikacja nie obsługuje fiskalizacji i nie generuje paragonów fiskalnych.
+- MVP nie wymaga backendu ani kont użytkowników.
+- Bezpośredni wydruk zależy od wsparcia Web Bluetooth w docelowej przeglądarce oraz od protokołu konkretnej drukarki. Nie zakładamy zgodności z ESC/POS bez potwierdzenia.
+- Jeśli aplikacja będzie hostowana zdalnie, Web Bluetooth wymaga bezpiecznego kontekstu, zwykle HTTPS.
+
+## Workflow Git
+
+- `main` ma zawierać działającą wersję.
+- Większe funkcjonalności rozwijamy na gałęziach `feature/nazwa`.
+- Przed zakończeniem etapu uruchamiamy lint i build oraz tworzymy opisowy commit.
