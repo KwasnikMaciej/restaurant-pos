@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --experimental-strip-types --test src/domain/orders.test.ts"
+    "test": "node --experimental-strip-types --test src/domain/orders.test.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",
