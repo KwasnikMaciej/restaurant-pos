@@ -185,9 +185,6 @@ function App() {
         <div className="banner-sparkle sparkle-two" aria-hidden="true">✦</div>
       </section>
 
-
-      )}
-
       <div className="content-layout" id="menu" hidden={page !== 'order'}>
         <section className="menu-section" aria-labelledby="menu-title">
           <div className="section-heading">
