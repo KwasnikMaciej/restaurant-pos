@@ -416,3 +416,9 @@ button:focus-visible, a:focus-visible { outline: 3px solid #c16d4c; outline-offs
   .printer-detail-row strong { text-align: left; }
   .printer-detail-row .printer-paper-note { max-width: none; }
 }
+
+
+.printer-success { width: 100%; margin: 14px 0 0; padding: 12px; border-radius: 10px; background: #edf6e9; color: #3f7442; font-size: 12px; line-height: 1.6; }
+.printer-disconnect-button { display: block; width: 100%; margin-top: 10px; padding: 10px 14px; border: 1px solid #eadfd1; border-radius: 10px; background: transparent; color: #78695c; font: inherit; font-size: 12px; cursor: pointer; }
+.printer-disconnect-button:hover { background: #f8f0e7; }
+.printer-disconnect-button:focus-visible { outline: 2px solid #a66a4b; outline-offset: 2px; }

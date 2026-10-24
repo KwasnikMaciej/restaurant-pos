@@ -111,7 +111,9 @@ function App() {
   const [printMessage, setPrintMessage] = useState('')
   const [printerConnection, setPrinterConnection] = useState(() => getPrinterConnection())
   const [printerConnecting, setPrinterConnecting] = useState(false)
+  const [printerPrinting, setPrinterPrinting] = useState(false)
   const [printerError, setPrinterError] = useState('')
+  const [printerMessage, setPrinterMessage] = useState('')
   const [nextOrderNumber, setNextOrderNumber] = useState(() => {
     try {
       const lastNumber = Number.parseInt(window.localStorage.getItem('franczesko:last-order-number') ?? '0', 10)
@@ -412,11 +414,25 @@ function App() {
             <div className="printer-detail-row"><span>Model protokołu</span><strong>MX06 / GATT</strong></div>
             <div className="printer-detail-row"><span>Papier</span><strong className="printer-paper-note">Nie sprawdzono — brak testu wydruku</strong></div>
             {printerError && <p className="printer-error" role="alert">{printerError}</p>}
+            {printerMessage && <p className="printer-success" role="status">{printerMessage}</p>}
             <div className="printer-actions">
               {printerConnection.connected
-                ? <button className="checkout-button printer-action-button" type="button" onClick={() => { disconnectPrinter(); setPrinterConnection(getPrinterConnection()); setPrinterError('') }}>Rozłącz drukarkę</button>
+                ? <>
+                    <button className="checkout-button printer-action-button" type="button" disabled={printerPrinting} onClick={async () => {
+                      setPrinterPrinting(true); setPrinterError(''); setPrinterMessage('')
+                      try {
+                        await printTestReceipt(['TEST', 'Drukarka OK'])
+                        setPrinterMessage('Wysłano krótki wydruk testowy. Sprawdź, czy drukarka wydrukowała tekst poprawnie.')
+                        setPrinterConnection(getPrinterConnection())
+                      } catch (error) {
+                        setPrinterError(error instanceof Error ? error.message : 'Nie udało się wykonać wydruku testowego.')
+                        setPrinterConnection(getPrinterConnection())
+                      } finally { setPrinterPrinting(false) }
+                    }}>{printerPrinting ? 'Drukowanie…' : 'Wydrukuj krótki test'} <span aria-hidden="true">↗</span></button>
+                    <button className="printer-disconnect-button" type="button" onClick={() => { disconnectPrinter(); setPrinterConnection(getPrinterConnection()); setPrinterError(''); setPrinterMessage('') }}>Rozłącz drukarkę</button>
+                  </>
                 : <button className="checkout-button printer-action-button" type="button" disabled={printerConnecting || !printerConnection.supported} onClick={async () => {
-                    setPrinterConnecting(true); setPrinterError('')
+                    setPrinterConnecting(true); setPrinterError(''); setPrinterMessage('')
                     try { await connectPrinter(); setPrinterConnection(getPrinterConnection()) }
                     catch (error) { setPrinterError(error instanceof Error ? error.message : 'Nie udało się połączyć z drukarką.'); setPrinterConnection(getPrinterConnection()) }
                     finally { setPrinterConnecting(false) }
@@ -427,14 +443,14 @@ function App() {
 
           <aside className="printer-info-panel">
             <span className="eyebrow">CO MOŻESZ TERAZ ZROBIĆ?</span>
-            <h3>Połączenie bez papieru</h3>
-            <p>Na tym etapie sprawdzamy wyłącznie wykrywanie urządzenia i połączenie Bluetooth. Nie wysyłamy żadnych danych do wydruku.</p>
+            <h3>Krótki wydruk testowy</h3>
+            <p>Po połączeniu możesz wydrukować tylko dwa krótkie wiersze: „TEST” i „Drukarka OK”. Przycisk nie drukuje paragonu ani danych zamówienia.</p>
             <ul>
               <li><span>1</span><div><strong>Włącz drukarkę</strong><small>Upewnij się, że ma zasilanie i Bluetooth jest dostępny.</small></div></li>
               <li><span>2</span><div><strong>Wybierz urządzenie</strong><small>W oknie systemowym wybierz MX06 Mini Printer.</small></div></li>
               <li><span>3</span><div><strong>Sprawdź status</strong><small>Po połączeniu status zmieni się na „Połączona”.</small></div></li>
             </ul>
-            <div className="printer-no-paper-note"><span aria-hidden="true">ⓘ</span><p><strong>Nie masz jeszcze papieru?</strong> To nie przeszkadza w przygotowaniu modułu. Test fizycznego wydruku dodamy po założeniu rolki.</p></div>
+            <div className="printer-no-paper-note"><span aria-hidden="true">ⓘ</span><p><strong>Przed testem załóż papier</strong> Samo połączenie Bluetooth działa bez rolki, ale nie uruchamiaj wydruku testowego, dopóki papier nie będzie założony.</p></div>
           </aside>
         </div>
       </section>
