@@ -151,3 +151,12 @@ button:focus-visible, a:focus-visible { outline: 3px solid #c16d4c; outline-offs
   .modal-actions > button { width: 100%; min-height: 50px; }
   .receipt-preview { padding: 17px 13px; }
 }
+
+
+.print-button { width: 100%; justify-content: center; margin: 0 0 12px; }
+.print-button:disabled { opacity: .65; cursor: wait; }
+.print-status { margin: 0 0 14px; padding: 11px 12px; border-radius: 10px; font-size: 11px; line-height: 1.6; }
+.print-status-printing { background: #fff5e5; color: #846340; }
+.print-status-success { background: #e8efdf; color: #4f6e3d; }
+.print-status-error { background: #fae9e5; color: #9c3929; }
+.success-close { width: 100%; }
