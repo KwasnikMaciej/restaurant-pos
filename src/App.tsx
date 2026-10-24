@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { printTestReceipt } from './printing/mx06-printer'
 import { APP_VERSION } from './version'
+
+declare const __BUILD_TIMESTAMP__: string
 import './App.css'
 
 type Category = 'Wszystko' | 'Dania główne' | 'Pizza i burgery' | 'Przystawki' | 'Desery' | 'Napoje'
@@ -533,6 +535,7 @@ function App() {
         <span>Mała restauracja, wielka przyjemność <span aria-hidden="true">♥</span></span>
         <span className="demo-note">Wersja demonstracyjna · bez płatności</span>
         <span className="app-version">Wersja {APP_VERSION}</span>
+        <span className="build-timestamp">Build: {new Date(__BUILD_TIMESTAMP__).toLocaleString('pl-PL', { dateStyle: 'medium', timeStyle: 'medium', timeZone: 'Europe/Warsaw' })}</span>
       </footer>
     </main>
   )
