@@ -185,40 +185,7 @@ function App() {
         <div className="banner-sparkle sparkle-two" aria-hidden="true">✦</div>
       </section>
 
-      <section className="order-history" id="order-history" aria-labelledby="history-title" hidden={page !== 'history'}>
-          <div className="section-heading">
-            <div><span className="eyebrow">POWRÓT DO POPRZEDNICH ZAMÓWIEŃ</span><h2 id="history-title">Historia zamówień</h2></div>
-            <span className="menu-count">{orderHistory.length} z {MAX_STORED_ORDERS}</span>
-          </div>
-          {historyStorageWarning && <p className="history-storage-warning" role="status">{historyStorageWarning}</p>}
-          {orderHistory.length === 0 ? (
-            <div className="history-empty">
-              <span aria-hidden="true">▤</span>
-              <h3>Jeszcze nie ma zamówień</h3>
-              <p>Po złożeniu pierwszego zamówienia pojawi się ono tutaj. Historia pozostaje na tym urządzeniu i w tej przeglądarce.</p>
-            </div>
-          ) : (
-            <div className="history-list">
-              {orderHistory.map((order) => (
-                <article className="history-card" key={order.number}>
-                  <div className="history-card-main">
-                    <div>
-                      <span className="history-order-number">Zamówienie #{String(order.number).padStart(4, '0')}</span>
-                      <time className="history-date" dateTime={order.completedAt.toISOString()}>{order.completedAt.toLocaleString('pl-PL')}</time>
-                      <span className="history-items">{order.items.reduce((sum, item) => sum + item.quantity, 0)} szt. · {order.items.length} {order.items.length === 1 ? 'pozycja' : [2, 3, 4].includes(order.items.length) ? 'pozycje' : 'pozycji'}</span>
-                    </div>
-                    <strong className="history-total">{formatPrice(order.total)}</strong>
-                  </div>
-                  <button className="history-details-button" type="button" onClick={() => {
-                    setLastOrder(order)
-                    setPrintStatus('idle')
-                    setPrintMessage('')
-                  }}>Szczegóły i potwierdzenie <span aria-hidden="true">→</span></button>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
+
       )}
 
       <div className="content-layout" id="menu" hidden={page !== 'order'}>
@@ -308,6 +275,41 @@ function App() {
       </div>
 
       </>}
+
+      <section className="order-history" id="order-history" aria-labelledby="history-title" hidden={page !== 'history'}>
+          <div className="section-heading">
+            <div><span className="eyebrow">POWRÓT DO POPRZEDNICH ZAMÓWIEŃ</span><h2 id="history-title">Historia zamówień</h2></div>
+            <span className="menu-count">{orderHistory.length} z {MAX_STORED_ORDERS}</span>
+          </div>
+          {historyStorageWarning && <p className="history-storage-warning" role="status">{historyStorageWarning}</p>}
+          {orderHistory.length === 0 ? (
+            <div className="history-empty">
+              <span aria-hidden="true">▤</span>
+              <h3>Jeszcze nie ma zamówień</h3>
+              <p>Po złożeniu pierwszego zamówienia pojawi się ono tutaj. Historia pozostaje na tym urządzeniu i w tej przeglądarce.</p>
+            </div>
+          ) : (
+            <div className="history-list">
+              {orderHistory.map((order) => (
+                <article className="history-card" key={order.number}>
+                  <div className="history-card-main">
+                    <div>
+                      <span className="history-order-number">Zamówienie #{String(order.number).padStart(4, '0')}</span>
+                      <time className="history-date" dateTime={order.completedAt.toISOString()}>{order.completedAt.toLocaleString('pl-PL')}</time>
+                      <span className="history-items">{order.items.reduce((sum, item) => sum + item.quantity, 0)} szt. · {order.items.length} {order.items.length === 1 ? 'pozycja' : [2, 3, 4].includes(order.items.length) ? 'pozycje' : 'pozycji'}</span>
+                    </div>
+                    <strong className="history-total">{formatPrice(order.total)}</strong>
+                  </div>
+                  <button className="history-details-button" type="button" onClick={() => {
+                    setLastOrder(order)
+                    setPrintStatus('idle')
+                    setPrintMessage('')
+                  }}>Szczegóły i potwierdzenie <span aria-hidden="true">→</span></button>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
 
       {checkoutOpen && (
         <div className="modal-backdrop" role="presentation" onClick={(event) => {
