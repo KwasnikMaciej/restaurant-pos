@@ -1,6 +1,6 @@
 # Plan prac
 
-Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wykonany i zweryfikowany.
+Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wykonany i zweryfikowany. Integrację drukarki chwilowo wstrzymujemy po potwierdzeniu pierwszego poprawnego wydruku; wrócimy do testów jakości i błędów, gdy będzie dostępny papier.
 
 ## Etap 0 — Fundamenty
 
@@ -26,7 +26,7 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 - [x] Zbudować koszyk z ilościami, usuwaniem pozycji i sumą.
 - [x] Obsłużyć pusty koszyk i stany brzegowe (ilość nie spada poniżej zera, usunięcie pozycji po zmniejszeniu do zera).
 - [x] Sprawdzić czytelność i obsługę dotykową na docelowym tablecie (test użytkownika 2026-10-24).
-- [ ] Potwierdzić, że CI przechodzi dla implementacji ekranu POS i finalizacji zamówienia.
+- [x] Potwierdzić działanie CI/CD i wyświetlanie numeru wersji w stopce.
 
 ## Etap 2 — Finalizacja zamówienia
 
@@ -37,25 +37,29 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 - [x] Dodać komunikat sukcesu i jasne oznaczenie, że potwierdzenie nie jest paragonem fiskalnym.
 - [x] Na MVP pozostawić historię zamówień poza zakresem; po finalizacji zachowujemy jedynie ostatnie potwierdzenie w pamięci aplikacji.
 
-## Etap 3 — Rozpoznanie i integracja drukarki
+## Etap 3 — Rozpoznanie i integracja drukarki (wstrzymany)
 
-- [x] Potwierdzić, że Chrome na Androidzie 16 łączy się z `MX06 Mini Printer` i wykonuje testowy wydruk.
-- [x] Potwierdzić wymagania Web Bluetooth: bezpieczny kontekst HTTPS i wybór urządzenia po gestcie użytkownika.
-- [x] Przeanalizować [cat-printer-web](https://github.com/zmras/cat-printer-web); przyjąć roboczo protokół rodziny MX06/GB01 oparty o ramki `51 78` (potwierdzić testem na własnym egzemplarzu).
-- [x] Przygotować monochromatyczny obraz paragonu, aby nie polegać na kodowaniu znaków w firmware drukarki.
+- [x] Potwierdzić, że Chrome na Androidzie 16 łączy się z `MX06 Mini Printer` i potrafi wykonać testowy wydruk.
+- [x] Potwierdzić wymagania Web Bluetooth: bezpieczny kontekst HTTPS i wybór urządzenia po geście użytkownika.
+- [x] Przeanalizować [cat-printer-web](https://github.com/zmras/cat-printer-web); przyjąć roboczo protokół rodziny MX06/GB01 oparty o ramki `51 78` (szczegóły nadal wymagają walidacji).
+- [x] Przygotować monochromatyczny obraz potwierdzenia, aby nie polegać na kodowaniu znaków w firmware drukarki.
 - [x] Wydzielić adapter Bluetooth i formatowanie pakietów do `src/printing/mx06-printer.ts`.
-- [x] Dodać w potwierdzeniu zamówienia przycisk testowego wydruku, uruchamiany gestem użytkownika.
-- [ ] Potwierdzić na własnej drukarce, że połączenie i format pakietów powodują poprawny wydruk.
-- [ ] Dopracować format niefiskalnego paragonu po teście papierowym.
+- [x] Dodać w potwierdzeniu zamówienia przycisk wydruku uruchamiany gestem użytkownika.
+- [x] Potwierdzić na własnym egzemplarzu, że aplikacja potrafi połączyć się z drukarką i uzyskać poprawny wydruk testowy (2026-10-24; test jakości nieukończony z powodu braku papieru).
 - [x] Oddzielić status drukowania od statusu zamówienia; błąd wydruku nie cofa zamówienia.
+- [ ] Po uzupełnieniu papieru sprawdzić jakość wydruku: kompletność pozycji, ilości, ceny i sumy, długie nazwy, polskie znaki, numer/datę oraz oznaczenie niefiskalne.
+- [ ] Sprawdzić obsługę braku papieru, jeśli drukarka udostępnia taki stan aplikacji; nie zakładać, że da się go wiarygodnie wykryć przez Web Bluetooth.
+- [ ] Przetestować wyłączoną drukarkę, anulowanie wyboru urządzenia, zerwanie połączenia i błąd zapisu.
+- [ ] Ocenić odstępy, marginesy, czytelność i ilość zużywanego papieru.
+- [ ] Sprawdzić, że ponowienie wydruku nie tworzy nowego zamówienia ani nie zmienia jego statusu.
 
-## Etap 4 — Dane lokalne i dopracowanie
+## Etap 4 — Funkcjonalności aplikacji i dane lokalne
 
 - [ ] Ustalić, jakie dane należy przechowywać lokalnie.
-- [ ] Jeśli potrzebne, zapisać historię zamówień w pamięci lokalnej przeglądarki.
-- [ ] Dodać możliwość ponownego wydruku paragonu, jeśli będzie przydatna.
+- [ ] Ocenić potrzebę historii zamówień; jeśli będzie potrzebna, zapisać ją w pamięci lokalnej przeglądarki.
 - [ ] Dopracować komunikaty, dostępność i wygodę obsługi dotykowej.
-- [ ] Przetestować odświeżenie aplikacji i ponowne połączenie z drukarką.
+- [ ] Przetestować odświeżenie aplikacji i zachowanie bieżącego zamówienia.
+- [ ] Wybrać i wdrożyć kolejną funkcjonalność POS przed powrotem do szczegółowych testów drukarki.
 
 ## Etap 5 — Wydanie na urządzeniu
 
