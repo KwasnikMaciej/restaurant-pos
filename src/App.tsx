@@ -90,6 +90,7 @@ function App() {
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash')
   const [cardPaymentStatus, setCardPaymentStatus] = useState<'idle' | 'connecting' | 'waiting' | 'reading' | 'authorizing' | 'approved'>('idle')
   const [activeCategory, setActiveCategory] = useState<Category>('Wszystko')
+  const [menuSearch, setMenuSearch] = useState('')
   const [cart, setCart] = useState<CartItem[]>([])
   const [cartOpen, setCartOpen] = useState(false)
   const [checkoutOpen, setCheckoutOpen] = useState(false)
@@ -108,10 +109,14 @@ function App() {
     }
   })
 
-  const visibleProducts = useMemo(
-    () => activeCategory === 'Wszystko' ? products : products.filter((product) => product.category === activeCategory),
-    [activeCategory],
-  )
+  const visibleProducts = useMemo(() => {
+    const normalizedSearch = menuSearch.trim().toLocaleLowerCase('pl-PL')
+    return products.filter((product) => {
+      const matchesCategory = activeCategory === 'Wszystko' || product.category === activeCategory
+      const searchableText = `${product.name} ${product.description} ${product.category}`.toLocaleLowerCase('pl-PL')
+      return matchesCategory && (!normalizedSearch || searchableText.includes(normalizedSearch))
+    })
+  }, [activeCategory, menuSearch])
 
   const openOrders = orderHistory.filter((order) => order.status === 'open')
   const tableOrder = (tableId: number) => orderHistory.find((order) => order.tableId === tableId && order.status === 'open')
@@ -231,12 +236,23 @@ function App() {
             ))}
           </nav>
 
-          <div className="product-grid">
-            {visibleProducts.map((product) => (
-              <article className="product-card" key={product.id}>
+          <div className="menu-tools">
+            <label className="menu-search">
+              <span className="menu-search-icon" aria-hidden="true">⌕</span>
+              <input type="search" value={menuSearch} onChange={(event) => setMenuSearch(event.target.value)} placeholder="Szukaj dania lub składnika…" aria-label="Szukaj w menu" />
+              {menuSearch && <button type="button" aria-label="Wyczyść wyszukiwanie" onClick={() => setMenuSearch('')}>×</button>}
+            </label>
+            <span className="menu-results" aria-live="polite">{visibleProducts.length} {visibleProducts.length === 1 ? 'wynik' : visibleProducts.length >= 2 && visibleProducts.length <= 4 ? 'wyniki' : 'wyników'}</span>
+          </div>
+
+          {visibleProducts.length > 0 ? <div className="product-grid">
+            {visibleProducts.map((product) => {
+              const inCart = cart.find((item) => item.product.id === product.id)?.quantity ?? 0
+              return <article className={inCart > 0 ? 'product-card product-card-selected' : 'product-card'} key={product.id}>
                 <div className="product-image-wrap">
                   <img className="product-image" src={product.image} alt={product.name} loading="lazy" />
                   {product.tag && <span className="product-tag">{product.tag}</span>}
+                  {inCart > 0 && <span className="product-in-cart">{inCart} w zamówieniu</span>}
                   <button className="quick-add" type="button" aria-label={`Dodaj ${product.name} do koszyka`} onClick={() => addToCart(product)}>+</button>
                 </div>
                 <div className="product-info">
@@ -245,12 +261,12 @@ function App() {
                   <p>{product.description}</p>
                   <div className="product-card-bottom">
                     <strong className="product-price">{formatPrice(product.price)}</strong>
-                    <button className="add-button" type="button" onClick={() => addToCart(product)}><span aria-hidden="true">+</span> Dodaj</button>
+                    <button className={inCart > 0 ? 'add-button add-button-selected' : 'add-button'} type="button" onClick={() => addToCart(product)}><span aria-hidden="true">+</span> Dodaj</button>
                   </div>
                 </div>
               </article>
-            ))}
-          </div>
+            })}
+          </div> : <div className="menu-no-results"><span aria-hidden="true">⌕</span><h3>Nie znaleźliśmy takiego dania</h3><p>Spróbuj innej nazwy albo zmień kategorię.</p><button type="button" onClick={() => { setMenuSearch(''); setActiveCategory('Wszystko') }}>Pokaż całe menu</button></div>}
         </section>
 
         <aside className={cartOpen ? 'cart-panel cart-panel-open' : 'cart-panel'} aria-labelledby="cart-title">
