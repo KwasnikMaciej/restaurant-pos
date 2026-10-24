@@ -55,3 +55,11 @@ Zapisujemy tutaj decyzje, które wpływają na zakres, technologię lub architek
 - **Decyzja:** po potwierdzeniu pierwszego poprawnego wydruku wstrzymujemy dalsze testy sprzętowe do czasu uzupełnienia papieru i skupiamy się na innych funkcjonalnościach POS.
 - **Powód:** brak papieru uniemożliwia rzetelny test jakości i zużycia wydruku, ale nie blokuje rozwoju pozostałej części aplikacji.
 - **Konsekwencje:** kolejne kroki diagnostyczne pozostają zapisane w `docs/ROADMAP.md`: kontrola kompletności i czytelności wydruku, a następnie testy błędów i bezpiecznego ponawiania. Sam fakt pierwszego wydruku nie oznacza ukończenia całej integracji.
+
+
+## D-009 — Lokalna historia ostatnich zamówień
+
+- **Status:** zaakceptowana
+- **Decyzja:** zapisujemy maksymalnie 100 ostatnich zamówień w `localStorage`, razem z pozycjami, cenami, sumą i datą; umożliwiamy ponowne otwarcie szczegółów.
+- **Powód:** użytkownik powinien móc wrócić do wcześniejszego zamówienia po zamknięciu potwierdzenia lub odświeżeniu strony, bez uruchamiania backendu.
+- **Konsekwencje:** historia jest ograniczona do konkretnej przeglądarki i urządzenia. Brak miejsca lub odmowa dostępu do pamięci lokalnej nie może cofnąć zamówienia w bieżącej sesji; aplikacja pokazuje wtedy ostrzeżenie.

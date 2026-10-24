@@ -21,7 +21,7 @@ src/
     menu/          # menu, kategorie i wybór produktów
     order/         # koszyk, pozycje i obliczenia
     checkout/      # podsumowanie i symulowana finalizacja
-    history/       # opcjonalna lokalna historia zamówień
+    history/       # historia zamówień przechowywana lokalnie
   printing/        # Web Bluetooth i adapter protokołu drukarki
   storage/         # lokalny zapis, jeśli potrzebny
 ```
@@ -51,9 +51,7 @@ Szczegóły protokołu nie są jeszcze zatwierdzone. Nie zakładamy zgodności z
 
 ## Przechowywanie danych
 
-Na początek menu może być stałą konfiguracją w kodzie. Stan bieżącego koszyka może pozostać w pamięci aplikacji. Trwała historia zamówień będzie dodana tylko wtedy, gdy zdecydujemy, że jest potrzebna w MVP.
-
-Jeżeli potrzebny będzie zapis trwały, rozważymy `localStorage` dla prostych preferencji albo IndexedDB dla danych strukturalnych. Decyzję podejmiemy na podstawie wymagań.
+Menu pozostaje stałą konfiguracją w kodzie, a koszyk w pamięci aplikacji. Ukończone zamówienia są przechowywane w `localStorage` pod kluczem `franczesko:order-history`; numer ostatniego zamówienia nadal jest zapisany pod `franczesko:last-order-number` dla zachowania ciągłości numeracji. Historia przechowuje maksymalnie 100 ostatnich zamówień wraz z pozycjami, cenami, sumą i datą. Dane są lokalne dla danej przeglądarki i urządzenia — nie synchronizują się z innymi urządzeniami. Jeśli zapis historii się nie powiedzie, aplikacja informuje użytkownika, a zamówienie pozostaje dostępne w bieżącej sesji.
 
 ## Uruchamianie i ograniczenia przeglądarki
 
