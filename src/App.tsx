@@ -200,7 +200,7 @@ function App() {
                     <div>
                       <span className="history-order-number">Zamówienie #{String(order.number).padStart(4, '0')}</span>
                       <time className="history-date" dateTime={order.completedAt.toISOString()}>{order.completedAt.toLocaleString('pl-PL')}</time>
-                      <span className="history-items">{order.items.reduce((sum, item) => sum + item.quantity, 0)} szt. · {order.items.length} {order.items.length === 1 ? 'pozycja' : 'pozycje'}</span>
+                      <span className="history-items">{order.items.reduce((sum, item) => sum + item.quantity, 0)} szt. · {order.items.length} {order.items.length === 1 ? 'pozycja' : [2, 3, 4].includes(order.items.length) ? 'pozycje' : 'pozycji'}</span>
                     </div>
                     <strong className="history-total">{formatPrice(order.total)}</strong>
                   </div>
