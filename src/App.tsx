@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { printTestReceipt } from './printing/mx06-printer'
+import { useEffect, useMemo, useState } from 'react'
+import { connectPrinter, disconnectPrinter, getPrinterConnection, printTestReceipt } from './printing/mx06-printer'
 import { APP_VERSION } from './version'
 
 declare const __BUILD_TIMESTAMP__: string
@@ -94,7 +94,7 @@ function loadOrderHistory(): CompletedOrder[] {
 }
 
 function App() {
-  const [page, setPage] = useState<'order' | 'tables' | 'history'>('tables')
+  const [page, setPage] = useState<'order' | 'tables' | 'history' | 'printer'>('tables')
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null)
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash')
@@ -109,6 +109,9 @@ function App() {
   const [historyStorageWarning, setHistoryStorageWarning] = useState('')
   const [printStatus, setPrintStatus] = useState<'idle' | 'printing' | 'success' | 'error'>('idle')
   const [printMessage, setPrintMessage] = useState('')
+  const [printerConnection, setPrinterConnection] = useState(() => getPrinterConnection())
+  const [printerConnecting, setPrinterConnecting] = useState(false)
+  const [printerError, setPrinterError] = useState('')
   const [nextOrderNumber, setNextOrderNumber] = useState(() => {
     try {
       const lastNumber = Number.parseInt(window.localStorage.getItem('franczesko:last-order-number') ?? '0', 10)
@@ -118,6 +121,12 @@ function App() {
       return loadOrderHistory().reduce((highest, order) => Math.max(highest, order.number), 0) + 1
     }
   })
+
+  useEffect(() => {
+    const refreshConnection = () => setPrinterConnection(getPrinterConnection())
+    window.addEventListener('printer-connection-change', refreshConnection)
+    return () => window.removeEventListener('printer-connection-change', refreshConnection)
+  }, [])
 
   const visibleProducts = useMemo(() => {
     const normalizedSearch = menuSearch.trim().toLocaleLowerCase('pl-PL')
@@ -209,6 +218,7 @@ function App() {
           <button className={page === 'tables' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => setPage('tables')}><span aria-hidden="true">▦</span> Stoliki <span className="app-nav-count">{openOrders.length}</span></button>
           <button className={page === 'order' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => selectedTableId === null ? setPage('tables') : setPage('order')}><span aria-hidden="true">＋</span> Zamówienie</button>
           <button className={page === 'history' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => setPage('history')}><span aria-hidden="true">▤</span> Historia <span className="app-nav-count">{orderHistory.length}</span></button>
+          <button className={page === 'printer' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => setPage('printer')}><span aria-hidden="true">▤</span> Drukarka <span className={`printer-nav-dot ${printerConnection.connected ? 'is-connected' : ''}`} aria-label={printerConnection.connected ? 'Połączona' : 'Rozłączona'} /></button>
         </nav>
         {page === 'order' && <button className="mobile-cart-button" type="button" onClick={() => setCartOpen((open) => !open)}>
           Koszyk <span>{itemCount}</span>
@@ -369,6 +379,64 @@ function App() {
             {order && <button className="table-pay-button" type="button" onClick={() => { setLastOrder(order); setPaymentOpen(true); setPaymentMethod('cash') }}>Rozlicz rachunek</button>}
           </article>
         })}</div>
+      </section>
+
+      <section className="printer-page" aria-labelledby="printer-title" hidden={page !== 'printer'}>
+        <div className="printer-page-heading">
+          <div>
+            <span className="eyebrow">URZĄDZENIA RESTAURACJI</span>
+            <h2 id="printer-title">Drukarka Bluetooth</h2>
+            <p>Sprawdź połączenie z drukarką MX06 Mini Printer i przygotuj ją do późniejszego testu wydruku.</p>
+          </div>
+          <span className={`printer-status-pill ${printerConnection.connected ? 'is-connected' : 'is-disconnected'}`}>
+            <span className="printer-status-dot" />{printerConnection.connected ? 'Połączona' : 'Niepołączona'}
+          </span>
+        </div>
+
+        <div className="printer-layout">
+          <article className="printer-device-card">
+            <div className={`printer-illustration ${printerConnection.connected ? 'printer-illustration-connected' : ''}`} aria-hidden="true">
+              <svg viewBox="0 0 120 100" role="img" aria-label="Ikona drukarki">
+                <rect x="25" y="35" width="70" height="43" rx="8" />
+                <path d="M37 35V16h46v19M39 61h42v23H39zM43 23h34" />
+                <circle cx="83" cy="47" r="3" />
+                <path d="M45 70h30M45 77h24" />
+              </svg>
+            </div>
+            <span className="eyebrow">DRUKARKA TERMICZNA</span>
+            <h3>{printerConnection.deviceName || 'MX06 Mini Printer'}</h3>
+            <p className="printer-device-description">{printerConnection.connected
+              ? 'Urządzenie jest połączone z aplikacją. Możesz pozostawić je gotowe do kolejnego kroku.'
+              : 'Połącz drukarkę, aby sprawdzić komunikację Bluetooth. Papier nie jest potrzebny do samego połączenia.'}</p>
+            <div className="printer-detail-row"><span>Połączenie</span><strong>{printerConnection.connected ? 'Bluetooth LE · aktywne' : 'Bluetooth LE · nieaktywne'}</strong></div>
+            <div className="printer-detail-row"><span>Model protokołu</span><strong>MX06 / GATT</strong></div>
+            <div className="printer-detail-row"><span>Papier</span><strong className="printer-paper-note">Nie sprawdzono — brak testu wydruku</strong></div>
+            {printerError && <p className="printer-error" role="alert">{printerError}</p>}
+            <div className="printer-actions">
+              {printerConnection.connected
+                ? <button className="checkout-button printer-action-button" type="button" onClick={() => { disconnectPrinter(); setPrinterConnection(getPrinterConnection()); setPrinterError('') }}>Rozłącz drukarkę</button>
+                : <button className="checkout-button printer-action-button" type="button" disabled={printerConnecting || !printerConnection.supported} onClick={async () => {
+                    setPrinterConnecting(true); setPrinterError('')
+                    try { await connectPrinter(); setPrinterConnection(getPrinterConnection()) }
+                    catch (error) { setPrinterError(error instanceof Error ? error.message : 'Nie udało się połączyć z drukarką.'); setPrinterConnection(getPrinterConnection()) }
+                    finally { setPrinterConnecting(false) }
+                  }}>{printerConnecting ? 'Łączenie…' : 'Połącz z drukarką'} <span aria-hidden="true">→</span></button>}
+              {!printerConnection.supported && <p className="printer-help">Web Bluetooth nie jest dostępny w tej przeglądarce. Otwórz aplikację w Chrome na Androidzie przez HTTPS.</p>}
+            </div>
+          </article>
+
+          <aside className="printer-info-panel">
+            <span className="eyebrow">CO MOŻESZ TERAZ ZROBIĆ?</span>
+            <h3>Połączenie bez papieru</h3>
+            <p>Na tym etapie sprawdzamy wyłącznie wykrywanie urządzenia i połączenie Bluetooth. Nie wysyłamy żadnych danych do wydruku.</p>
+            <ul>
+              <li><span>1</span><div><strong>Włącz drukarkę</strong><small>Upewnij się, że ma zasilanie i Bluetooth jest dostępny.</small></div></li>
+              <li><span>2</span><div><strong>Wybierz urządzenie</strong><small>W oknie systemowym wybierz MX06 Mini Printer.</small></div></li>
+              <li><span>3</span><div><strong>Sprawdź status</strong><small>Po połączeniu status zmieni się na „Połączona”.</small></div></li>
+            </ul>
+            <div className="printer-no-paper-note"><span aria-hidden="true">ⓘ</span><p><strong>Nie masz jeszcze papieru?</strong> To nie przeszkadza w przygotowaniu modułu. Test fizycznego wydruku dodamy po założeniu rolki.</p></div>
+          </aside>
+        </div>
       </section>
 
       <section className="order-history" id="order-history" aria-labelledby="history-title" hidden={page !== 'history'}>

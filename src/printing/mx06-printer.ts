@@ -19,12 +19,60 @@ type PrinterGatt = {
 type PrinterDevice = {
   name?: string
   gatt?: PrinterGatt
+  addEventListener?(type: 'gattserverdisconnected', listener: () => void): void
 }
 type BluetoothPicker = {
   requestDevice(options: {
     acceptAllDevices: boolean
     optionalServices: string[]
   }): Promise<PrinterDevice>
+}
+
+let activeDevice: PrinterDevice | null = null
+let activeCharacteristic: PrinterCharacteristic | null = null
+
+function notifyConnectionChange(): void {
+  window.dispatchEvent(new Event('printer-connection-change'))
+}
+
+export function getPrinterConnection(): { connected: boolean; deviceName: string | null; supported: boolean } {
+  const supported = typeof navigator !== 'undefined' && 'bluetooth' in navigator
+  const connected = Boolean(activeDevice?.gatt?.connected && activeCharacteristic)
+  return { connected, deviceName: connected ? (activeDevice?.name || 'MX06 Mini Printer') : null, supported }
+}
+
+/** Opens the browser Bluetooth picker and keeps the GATT session available for later printing. */
+export async function connectPrinter(): Promise<string> {
+  if (!('bluetooth' in navigator)) {
+    throw new Error('Ta przeglądarka nie udostępnia Web Bluetooth. Otwórz aplikację w Chrome na Androidzie.')
+  }
+  const bluetooth = (navigator as Navigator & { bluetooth?: BluetoothPicker }).bluetooth
+  if (!bluetooth) throw new Error('Web Bluetooth jest niedostępny. Sprawdź Chrome i połączenie HTTPS.')
+
+  const device = await bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: [SERVICE_UUID] })
+  const gatt = device.gatt
+  if (!gatt) throw new Error('Wybrane urządzenie nie obsługuje połączenia GATT.')
+
+  const server = await gatt.connect()
+  const service = await server.getPrimaryService(SERVICE_UUID)
+  const characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID)
+  activeDevice = device
+  activeCharacteristic = characteristic
+  device.addEventListener?.('gattserverdisconnected', () => {
+    activeDevice = null
+    activeCharacteristic = null
+    notifyConnectionChange()
+  })
+  notifyConnectionChange()
+  return device.name || 'MX06 Mini Printer'
+}
+
+export function disconnectPrinter(): void {
+  const device = activeDevice
+  activeDevice = null
+  activeCharacteristic = null
+  if (device?.gatt?.connected) device.gatt.disconnect()
+  notifyConnectionChange()
 }
 
 const Command = {
@@ -172,37 +220,27 @@ function buildPrintPackets(rows: Uint8Array[]): Uint8Array[] {
  * confirmation. Call only from a user gesture (button click).
  */
 export async function printTestReceipt(lines: string[]): Promise<void> {
-  if (!('bluetooth' in navigator)) {
-    throw new Error('Ta przeglądarka nie udostępnia Web Bluetooth. Otwórz aplikację w Chrome na Androidzie.')
-  }
+  let characteristic = activeCharacteristic
+  let connectedForThisPrint = false
 
-  const bluetooth = (navigator as Navigator & { bluetooth?: BluetoothPicker }).bluetooth
-  if (!bluetooth) {
-    throw new Error('Web Bluetooth jest niedostępny. Sprawdź Chrome i połączenie HTTPS.')
+  if (!characteristic || !activeDevice?.gatt?.connected) {
+    await connectPrinter()
+    characteristic = activeCharacteristic
+    connectedForThisPrint = true
   }
-
-  const device = await bluetooth.requestDevice({
-    acceptAllDevices: true,
-    optionalServices: [SERVICE_UUID],
-  })
-  const gatt = device.gatt
-  if (!gatt) throw new Error('Wybrane urządzenie nie obsługuje połączenia GATT.')
+  if (!characteristic) throw new Error('Nie udało się uzyskać kanału komunikacji z drukarką.')
 
   try {
-    const server = await gatt.connect()
-    const service = await server.getPrimaryService(SERVICE_UUID)
-    const characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID)
     const rows = renderReceipt(lines)
     const packets = buildPrintPackets(rows)
-
     for (const data of packets) {
-      // Materialize a fresh ArrayBuffer to satisfy the stricter DOM types in TypeScript 6.
       const safeBuffer = new ArrayBuffer(data.byteLength)
       new Uint8Array(safeBuffer).set(data)
       await characteristic.writeValueWithoutResponse(safeBuffer)
       await sleep(30)
     }
-  } finally {
-    gatt.disconnect()
+  } catch (error) {
+    if (connectedForThisPrint) disconnectPrinter()
+    throw error
   }
 }
