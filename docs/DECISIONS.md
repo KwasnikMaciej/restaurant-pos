@@ -31,10 +31,10 @@ Zapisujemy tutaj decyzje, które wpływają na zakres, technologię lub architek
 
 ## D-005 — Drukowanie przez Web Bluetooth
 
-- **Status:** wstępnie zaakceptowana; protokół do weryfikacji
+- **Status:** wstępnie zaakceptowana; protokół i błędy do dalszej weryfikacji
 - **Decyzja:** próbujemy drukować bezpośrednio z aplikacji webowej przez Web Bluetooth.
-- **Powód:** połączenie i testowy wydruk na drukarce `MX06 Mini Printer` zostały potwierdzone w Chrome na Androidzie 16.
-- **Konsekwencje:** trzeba potwierdzić protokół i możliwości urządzenia z poziomu naszej aplikacji. Nie zakładamy automatycznie ESC/POS ani zgodności każdej przeglądarki.
+- **Powód:** 2026-10-24 potwierdzono, że aplikacja łączy się z `MX06 Mini Printer` i uzyskuje poprawny wydruk testowy.
+- **Konsekwencje:** jakość wydruku i scenariusze awaryjne nie zostały jeszcze w pełni sprawdzone. Nie zakładamy automatycznie ESC/POS ani tego, że stan braku papieru da się odczytać z aplikacji.
 
 ## D-006 — Płatność symulowana, paragon niefiskalny
 
@@ -48,3 +48,10 @@ Zapisujemy tutaj decyzje, które wpływają na zakres, technologię lub architek
 - **Status:** zaakceptowana
 - **Decyzja:** kod i dokumentacja aplikacji są utrzymywane w repozytorium `KwasnikMaciej/restaurant-pos`, oddzielnie od repozytorium Second Brain.
 - **Powód:** niezależna historia kodu i cykl rozwoju aplikacji.
+
+## D-008 — Tymczasowe wstrzymanie prac nad drukarką
+
+- **Status:** zaakceptowana
+- **Decyzja:** po potwierdzeniu pierwszego poprawnego wydruku wstrzymujemy dalsze testy sprzętowe do czasu uzupełnienia papieru i skupiamy się na innych funkcjonalnościach POS.
+- **Powód:** brak papieru uniemożliwia rzetelny test jakości i zużycia wydruku, ale nie blokuje rozwoju pozostałej części aplikacji.
+- **Konsekwencje:** kolejne kroki diagnostyczne pozostają zapisane w `docs/ROADMAP.md`: kontrola kompletności i czytelności wydruku, a następnie testy błędów i bezpiecznego ponawiania. Sam fakt pierwszego wydruku nie oznacza ukończenia całej integracji.
