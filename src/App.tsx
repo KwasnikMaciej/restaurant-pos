@@ -142,6 +142,7 @@ function App() {
   const [page, setPage] = useState<'order' | 'tables' | 'history' | 'printer' | 'reports'>('tables')
   const [moreMenuOpen, setMoreMenuOpen] = useState(false)
   const [reportPeriod, setReportPeriod] = useState<'7d' | '30d' | 'all'>('7d')
+  const [reportNow, setReportNow] = useState(0)
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null)
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash')
@@ -197,13 +198,14 @@ function App() {
   const itemCount = cart.reduce((total, item) => total + item.quantity, 0)
   const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
 
+  useEffect(() => { setReportNow(Date.now()) }, [reportPeriod, orderHistory])
+
   const reportOrders = useMemo(() => {
-    const now = Date.now()
-    const cutoff = reportPeriod === '7d' ? now - 7 * 24 * 60 * 60 * 1000
-      : reportPeriod === '30d' ? now - 30 * 24 * 60 * 60 * 1000
+    const cutoff = reportPeriod === '7d' ? reportNow - 7 * 24 * 60 * 60 * 1000
+      : reportPeriod === '30d' ? reportNow - 30 * 24 * 60 * 60 * 1000
         : Number.NEGATIVE_INFINITY
     return orderHistory.filter((order) => order.status === 'paid' && order.paidAt && order.paidAt.getTime() >= cutoff)
-  }, [orderHistory, reportPeriod])
+  }, [orderHistory, reportPeriod, reportNow])
 
   const productReport = useMemo(() => calculateProductSales(products, reportOrders), [reportOrders])
   const serviceDurations = useMemo(() => getServiceDurations(reportOrders), [reportOrders])
@@ -283,7 +285,7 @@ function App() {
         <div className="topbar-note"><span className="open-dot" /> Dziś gotujemy z sercem</div>
         <nav className="app-navigation" aria-label="Nawigacja aplikacji">
           <button className={page === 'tables' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => { setPage('tables'); setMoreMenuOpen(false) }}><span aria-hidden="true">▦</span> Stoliki <span className="app-nav-count">{openOrders.length}</span></button>
-          <button className={page === 'order' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => { selectedTableId === null ? setPage('tables') : setPage('order'); setMoreMenuOpen(false) }}><span aria-hidden="true">＋</span> Zamówienie</button>
+          <button className={page === 'order' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => { if (selectedTableId === null) setPage('tables'); else setPage('order'); setMoreMenuOpen(false) }}><span aria-hidden="true">＋</span> Zamówienie</button>
           <button className={page === 'reports' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => { setPage('reports'); setMoreMenuOpen(false) }}><span aria-hidden="true">▥</span> Raporty</button>
           <div className="nav-more-wrap">
             <button className={page === 'history' || page === 'printer' ? 'app-nav-link active' : 'app-nav-link'} type="button" aria-expanded={moreMenuOpen} aria-haspopup="true" onClick={() => setMoreMenuOpen((open) => !open)}><span aria-hidden="true">•••</span> Więcej <span aria-hidden="true">⌄</span></button>
