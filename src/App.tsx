@@ -37,6 +37,7 @@ type CompletedOrder = {
 const ORDER_HISTORY_KEY = 'franczesko:orders-v2'
 const TABLE_NUMBERS = Array.from({ length: 10 }, (_, index) => index + 1)
 const MAX_STORED_ORDERS = 100
+const INITIAL_REPORT_TIME = Date.now()
 
 const categories: Category[] = [
   'Wszystko',
@@ -142,7 +143,7 @@ function App() {
   const [page, setPage] = useState<'order' | 'tables' | 'history' | 'printer' | 'reports'>('tables')
   const [moreMenuOpen, setMoreMenuOpen] = useState(false)
   const [reportPeriod, setReportPeriod] = useState<'7d' | '30d' | 'all'>('7d')
-  const [reportNow, setReportNow] = useState(0)
+  const [reportNow, setReportNow] = useState(INITIAL_REPORT_TIME)
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null)
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash')
@@ -197,8 +198,6 @@ function App() {
   const selectTable = (tableId: number) => { const existing = tableOrder(tableId); setSelectedTableId(tableId); setCart(existing ? existing.items.map((item) => ({ ...item })) : []); setPage('order'); setCartOpen(false) }
   const itemCount = cart.reduce((total, item) => total + item.quantity, 0)
   const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
-
-  useEffect(() => { setReportNow(Date.now()) }, [reportPeriod, orderHistory])
 
   const reportOrders = useMemo(() => {
     const cutoff = reportPeriod === '7d' ? reportNow - 7 * 24 * 60 * 60 * 1000
@@ -286,7 +285,7 @@ function App() {
         <nav className="app-navigation" aria-label="Nawigacja aplikacji">
           <button className={page === 'tables' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => { setPage('tables'); setMoreMenuOpen(false) }}><span aria-hidden="true">▦</span> Stoliki <span className="app-nav-count">{openOrders.length}</span></button>
           <button className={page === 'order' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => { if (selectedTableId === null) setPage('tables'); else setPage('order'); setMoreMenuOpen(false) }}><span aria-hidden="true">＋</span> Zamówienie</button>
-          <button className={page === 'reports' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => { setPage('reports'); setMoreMenuOpen(false) }}><span aria-hidden="true">▥</span> Raporty</button>
+          <button className={page === 'reports' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => { setReportNow(Date.now()); setPage('reports'); setMoreMenuOpen(false) }}><span aria-hidden="true">▥</span> Raporty</button>
           <div className="nav-more-wrap">
             <button className={page === 'history' || page === 'printer' ? 'app-nav-link active' : 'app-nav-link'} type="button" aria-expanded={moreMenuOpen} aria-haspopup="true" onClick={() => setMoreMenuOpen((open) => !open)}><span aria-hidden="true">•••</span> Więcej <span aria-hidden="true">⌄</span></button>
             {moreMenuOpen && <div className="nav-more-menu" role="menu">
@@ -532,9 +531,9 @@ function App() {
         <div className="reports-heading">
           <div><span className="eyebrow">PODSUMOWANIE SPRZEDAŻY</span><h2 id="reports-title">Raporty</h2><p>Popularność dań i czas obsługi na podstawie rozliczonych rachunków zapisanych na tym urządzeniu.</p></div>
           <div className="report-period-switch" role="group" aria-label="Okres raportu">
-            <button type="button" className={reportPeriod === '7d' ? 'active' : ''} aria-pressed={reportPeriod === '7d'} onClick={() => setReportPeriod('7d')}>7 dni</button>
-            <button type="button" className={reportPeriod === '30d' ? 'active' : ''} aria-pressed={reportPeriod === '30d'} onClick={() => setReportPeriod('30d')}>30 dni</button>
-            <button type="button" className={reportPeriod === 'all' ? 'active' : ''} aria-pressed={reportPeriod === 'all'} onClick={() => setReportPeriod('all')}>Cała historia</button>
+            <button type="button" className={reportPeriod === '7d' ? 'active' : ''} aria-pressed={reportPeriod === '7d'} onClick={() => { setReportNow(Date.now()); setReportPeriod('7d') }}>7 dni</button>
+            <button type="button" className={reportPeriod === '30d' ? 'active' : ''} aria-pressed={reportPeriod === '30d'} onClick={() => { setReportNow(Date.now()); setReportPeriod('30d') }}>30 dni</button>
+            <button type="button" className={reportPeriod === 'all' ? 'active' : ''} aria-pressed={reportPeriod === 'all'} onClick={() => { setReportNow(Date.now()); setReportPeriod('all') }}>Cała historia</button>
           </div>
         </div>
         <p className="reports-data-note">Raport obejmuje maksymalnie {MAX_STORED_ORDERS} ostatnich zamówień przechowywanych w tej przeglądarce. Zamówienia nierozliczone i anulowane są pomijane.</p>
