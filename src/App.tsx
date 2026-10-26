@@ -218,7 +218,7 @@ function App() {
     return orderHistory.filter((order) => order.status === 'paid' && order.paidAt && order.paidAt.getTime() >= cutoff)
   }, [orderHistory, reportPeriod, reportNow])
 
-  const productReport = useMemo(() => calculateProductSales([...products, ...dailyLunchPool], reportOrders), [reportOrders])
+  const productReport = useMemo(() => calculateProductSales([...products, dailyLunch], reportOrders), [reportOrders])
   const serviceDurations = useMemo(() => getServiceDurations(reportOrders), [reportOrders])
   const averageServiceMs = serviceDurations.length
     ? serviceDurations.reduce((sum, duration) => sum + duration, 0) / serviceDurations.length
