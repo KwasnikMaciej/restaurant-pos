@@ -21,6 +21,6 @@ test('different dates can select different lunch items', () => {
 })
 
 test('uses the Warsaw calendar date across UTC boundaries', () => {
-  assert.equal(getWarsawDateKey(new Date('2026-10-26T22:30:00.000Z')), '2026-10-27')
+  assert.equal(getWarsawDateKey(new Date('2026-10-26T23:30:00.000Z')), '2026-10-27')
   assert.equal(getWarsawDateKey(new Date('2026-10-26T10:00:00.000Z')), '2026-10-26')
 })
