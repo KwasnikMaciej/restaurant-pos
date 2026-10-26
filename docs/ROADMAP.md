@@ -72,7 +72,9 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 - [x] Wydzielić historię do osobnej podstrony i dodać nawigację „Zamówienie” / „Historia”.
 - [ ] Dopracować komunikaty, dostępność i wygodę obsługi dotykowej.
 - [ ] Przetestować odświeżenie aplikacji i zachowanie bieżącego zamówienia.
-- [ ] Po stabilizacji drukarki wybrać następną funkcjonalność POS.
+- [x] Dodać raporty operacyjne: popularność produktów i czas obsługi na podstawie rozliczonych rachunków (lokalna historia ostatnich 100 zamówień).
+- [x] Uporządkować nawigację: podstawowe widoki na wierzchu, historię i drukarkę przenieść do menu „Więcej”.
+- [ ] Po stabilizacji drukarki przeprowadzić przegląd UX raportów i nawigacji na tablecie.
 
 ## Etap 5 — Wydanie na urządzeniu
 
