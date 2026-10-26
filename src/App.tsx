@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { connectPrinter, disconnectPrinter, getPrinterConnection, printTestReceipt } from './printing/mx06-printer'
 import { APP_VERSION } from './version'
+import { calculateProductSales, getMedian, getServiceDurations } from './domain/reports'
 
 declare const __BUILD_TIMESTAMP__: string
 import './App.css'
@@ -204,32 +205,12 @@ function App() {
     return orderHistory.filter((order) => order.status === 'paid' && order.paidAt && order.paidAt.getTime() >= cutoff)
   }, [orderHistory, reportPeriod])
 
-  const productReport = useMemo(() => {
-    const counts = new Map(products.map((product) => [product.id, { id: product.id, name: product.name, category: product.category, quantity: 0, revenue: 0 }]))
-    for (const order of reportOrders) {
-      for (const item of order.items) {
-        const existing = counts.get(item.product.id)
-        if (existing) {
-          existing.quantity += item.quantity
-          existing.revenue += item.product.price * item.quantity
-        }
-      }
-    }
-    return [...counts.values()]
-  }, [reportOrders])
-
-  const serviceDurations = reportOrders
-    .map((order) => order.paidAt!.getTime() - order.completedAt.getTime())
-    .filter((duration) => Number.isFinite(duration) && duration >= 0)
-    .sort((left, right) => left - right)
+  const productReport = useMemo(() => calculateProductSales(products, reportOrders), [reportOrders])
+  const serviceDurations = useMemo(() => getServiceDurations(reportOrders), [reportOrders])
   const averageServiceMs = serviceDurations.length
     ? serviceDurations.reduce((sum, duration) => sum + duration, 0) / serviceDurations.length
     : null
-  const medianServiceMs = serviceDurations.length
-    ? serviceDurations.length % 2
-      ? serviceDurations[Math.floor(serviceDurations.length / 2)]
-      : (serviceDurations[serviceDurations.length / 2 - 1] + serviceDurations[serviceDurations.length / 2]) / 2
-    : null
+  const medianServiceMs = getMedian(serviceDurations)
   const reportRevenue = reportOrders.reduce((sum, order) => sum + order.total, 0)
   const topProducts = [...productReport].sort((left, right) => right.quantity - left.quantity || left.name.localeCompare(right.name, 'pl-PL')).slice(0, 5)
   const leastProducts = [...productReport].sort((left, right) => left.quantity - right.quantity || left.name.localeCompare(right.name, 'pl-PL')).slice(0, 5)
