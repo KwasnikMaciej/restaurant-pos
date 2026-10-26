@@ -277,14 +277,13 @@ function App() {
   return (
     <main className="restaurant-app">
       <header className="topbar">
-        <a className="brand" href="#menu" aria-label="Franczesko Restaurant — menu" onClick={() => setPage('order')}>
+        <a className="brand" href="#tables" aria-label="Franczesko Restaurant — stoliki" onClick={(event) => { event.preventDefault(); setPage('tables'); setMoreMenuOpen(false) }}>
           <span className="brand-mark" aria-hidden="true">f.</span>
           <span className="brand-copy"><strong>Franczesko</strong><span>RESTAURANT</span></span>
         </a>
         <div className="topbar-note"><span className="open-dot" /> Dziś gotujemy z sercem</div>
         <nav className="app-navigation" aria-label="Nawigacja aplikacji">
           <button className={page === 'tables' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => { setPage('tables'); setMoreMenuOpen(false) }}><span aria-hidden="true">▦</span> Stoliki <span className="app-nav-count">{openOrders.length}</span></button>
-          <button className={page === 'order' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => { if (selectedTableId === null) setPage('tables'); else setPage('order'); setMoreMenuOpen(false) }}><span aria-hidden="true">＋</span> Zamówienie</button>
           <button className={page === 'reports' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => { setReportNow(Date.now()); setPage('reports'); setMoreMenuOpen(false) }}><span aria-hidden="true">▥</span> Raporty</button>
           <div className="nav-more-wrap">
             <button className={page === 'history' || page === 'printer' ? 'app-nav-link active' : 'app-nav-link'} type="button" aria-expanded={moreMenuOpen} aria-haspopup="true" onClick={() => setMoreMenuOpen((open) => !open)}><span aria-hidden="true">•••</span> Więcej <span aria-hidden="true">⌄</span></button>
