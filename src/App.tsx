@@ -47,28 +47,65 @@ const categories: Category[] = [
 ]
 
 const products: Product[] = [
+  // Przystawki — ceny i kompozycje inspirowane typowymi kartami polskich restauracji.
   { id: 'tatar', name: 'Tatar wołowy', description: 'Siekana wołowina, żółtko, ogórek kiszony, cebulka i grzanki', category: 'Przystawki', price: 3900, image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85' },
   { id: 'bruschetta', name: 'Bruschetta z pomidorami', description: 'Grzanki, dojrzałe pomidory, bazylia i oliwa', category: 'Przystawki', price: 2600, image: 'https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?auto=format&fit=crop&w=900&q=85', tag: 'Wegetariańskie' },
   { id: 'cheese', name: 'Ser panierowany z żurawiną', description: 'Chrupiący ser, żurawina i sałata z winegretem', category: 'Przystawki', price: 2900, image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=900&q=85' },
   { id: 'fries', name: 'Frytki z dipem czosnkowym', description: 'Złociste frytki i domowy sos czosnkowy', category: 'Przystawki', price: 1600, image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=900&q=85' },
+  { id: 'herring', name: 'Śledź w oleju', description: 'Filety śledziowe, cebulka, olej lniany i pieczywo', category: 'Przystawki', price: 2400, image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=85' },
+  { id: 'lard', name: 'Chleb ze smalcem i ogórkiem', description: 'Domowy smalec, ogórek kiszony i świeży chleb', category: 'Przystawki', price: 1800, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=85', tag: 'Domowy klasyk' },
+  { id: 'potato-pancakes-starter', name: 'Placki ziemniaczane', description: 'Chrupiące placki ze śmietaną i koperkiem', category: 'Przystawki', price: 2200, image: 'https://images.unsplash.com/photo-1518013431117-eb1465fa5752?auto=format&fit=crop&w=900&q=85', tag: 'Wegetariańskie' },
+  { id: 'oscypek', name: 'Grillowany oscypek', description: 'Podhalański ser z konfiturą z żurawiny', category: 'Przystawki', price: 2700, image: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=900&q=85' },
+  { id: 'pate', name: 'Pasztet domowy', description: 'Pasztet pieczony, konfitura z cebuli i pieczywo', category: 'Przystawki', price: 2500, image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85' },
+  { id: 'vegetable-salad', name: 'Sałatka jarzynowa', description: 'Warzywa korzeniowe, jajko, groszek i majonez', category: 'Przystawki', price: 1900, image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=85', tag: 'Wegetariańskie' },
 
+  // Zupy
   { id: 'soup', name: 'Rosół domowy', description: 'Bulion drobiowo-wołowy, makaron, marchew i natka pietruszki', category: 'Zupy', price: 1900, image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85', tag: 'Domowy klasyk' },
   { id: 'zurek', name: 'Żurek z jajkiem i kiełbasą', description: 'Zakwas żytni, biała kiełbasa, jajko i majeranek', category: 'Zupy', price: 2600, image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=900&q=85' },
   { id: 'tomato-soup', name: 'Krem pomidorowy', description: 'Pomidory, śmietanka, bazylia i grzanki', category: 'Zupy', price: 2200, image: 'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?auto=format&fit=crop&w=900&q=85', tag: 'Łagodny smak' },
+  { id: 'borscht', name: 'Barszcz czerwony', description: 'Aromatyczny barszcz z majerankiem, podawany z uszkami', category: 'Zupy', price: 2400, image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85' },
+  { id: 'tripe-soup', name: 'Flaki wołowe', description: 'Tradycyjna zupa wołowa z majerankiem i warzywami', category: 'Zupy', price: 2800, image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=900&q=85' },
+  { id: 'pickle-soup', name: 'Zupa ogórkowa', description: 'Kiszone ogórki, ziemniaki, marchew i koperek', category: 'Zupy', price: 2100, image: 'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?auto=format&fit=crop&w=900&q=85', tag: 'Domowy klasyk' },
+  { id: 'mushroom-soup', name: 'Zupa grzybowa', description: 'Leśne grzyby, śmietanka i łazanki', category: 'Zupy', price: 2600, image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85' },
+  { id: 'cabbage-soup', name: 'Kapuśniak', description: 'Kiszona kapusta, ziemniaki i wędzonka', category: 'Zupy', price: 2300, image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=900&q=85' },
+  { id: 'cold-beet-soup', name: 'Chłodnik litewski', description: 'Botwinka, kefir, ogórek, rzodkiewka i jajko', category: 'Zupy', price: 2400, image: 'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?auto=format&fit=crop&w=900&q=85', tag: 'Sezonowy' },
+  { id: 'barley-soup', name: 'Krupnik', description: 'Kasza jęczmienna, warzywa korzeniowe i natka', category: 'Zupy', price: 2000, image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85' },
 
+  // Dania główne
   { id: 'cutlet', name: 'Kotlet schabowy', description: 'Panierowany schab, ziemniaki puree i mizeria', category: 'Dania główne', price: 4200, image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=85', tag: 'Bestseller' },
   { id: 'pierogi', name: 'Pierogi ruskie', description: 'Ręcznie lepione pierogi z twarogiem i ziemniakami, cebulka', category: 'Dania główne', price: 3200, image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=900&q=85' },
   { id: 'salmon', name: 'Łosoś pieczony', description: 'Filet z łososia, pieczone ziemniaki i warzywa sezonowe', category: 'Dania główne', price: 5200, image: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=900&q=85' },
   { id: 'burger', name: 'Burger wołowy', description: 'Wołowina, cheddar, sałata, pomidor i sos firmowy', category: 'Dania główne', price: 3900, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=85' },
+  { id: 'golonka', name: 'Golonka pieczona', description: 'Długo pieczona golonka, kapusta zasmażana i chrzan', category: 'Dania główne', price: 4900, image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=85' },
+  { id: 'duck', name: 'Kaczka pieczona z jabłkiem', description: 'Udko kaczki, pieczone jabłko, kluski i modra kapusta', category: 'Dania główne', price: 5900, image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=85', tag: 'Specjał szefa' },
+  { id: 'bigos', name: 'Bigos staropolski', description: 'Kapusta kiszona i świeża, mięsa, kiełbasa i przyprawy', category: 'Dania główne', price: 3600, image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85' },
+  { id: 'cabbage-rolls', name: 'Gołąbki w sosie pomidorowym', description: 'Liście kapusty, farsz mięsno-ryżowy i sos pomidorowy', category: 'Dania główne', price: 3400, image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=900&q=85' },
+  { id: 'hungarian-pancake', name: 'Placek po węgiersku', description: 'Duży placek ziemniaczany z gulaszem i kleksem śmietany', category: 'Dania główne', price: 3900, image: 'https://images.unsplash.com/photo-1518013431117-eb1465fa5752?auto=format&fit=crop&w=900&q=85' },
+  { id: 'dumplings-meat', name: 'Pierogi z mięsem', description: 'Pierogi z farszem mięsnym, okraszone cebulką', category: 'Dania główne', price: 3300, image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=900&q=85' },
 
+  // Desery
   { id: 'cake', name: 'Sernik domowy', description: 'Kremowy sernik z sosem owocowym', category: 'Desery', price: 2100, image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=900&q=85', tag: 'Domowy wypiek' },
   { id: 'apple-pie', name: 'Szarlotka na ciepło', description: 'Jabłka z cynamonem, kruszonka i gałka lodów', category: 'Desery', price: 2300, image: 'https://images.unsplash.com/photo-1562007908-17c67e878c1b?auto=format&fit=crop&w=900&q=85' },
   { id: 'icecream', name: 'Lody waniliowe', description: 'Trzy gałki lodów z polewą czekoladową', category: 'Desery', price: 1700, image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=900&q=85' },
+  { id: 'pancakes-sweet', name: 'Naleśniki z twarogiem', description: 'Naleśniki z waniliowym twarogiem i sosem malinowym', category: 'Desery', price: 2400, image: 'https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=900&q=85' },
+  { id: 'racuchy', name: 'Racuchy z jabłkami', description: 'Puszyste racuchy oprószone cukrem pudrem', category: 'Desery', price: 2200, image: 'https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=900&q=85', tag: 'Domowy klasyk' },
+  { id: 'poppy-cake', name: 'Makowiec', description: 'Makowiec zawijany z bakaliami i lukrem', category: 'Desery', price: 1900, image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=900&q=85' },
+  { id: 'cream-cake', name: 'Kremówka', description: 'Ciasto francuskie, krem waniliowy i cukier puder', category: 'Desery', price: 2100, image: 'https://images.unsplash.com/photo-1562007908-17c67e878c1b?auto=format&fit=crop&w=900&q=85' },
+  { id: 'gingerbread', name: 'Piernik z powidłami', description: 'Korzenne ciasto, powidła śliwkowe i delikatna polewa', category: 'Desery', price: 1800, image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=900&q=85' },
+  { id: 'paczki', name: 'Pączek z konfiturą', description: 'Puszysty pączek z konfiturą różaną i cukrem pudrem', category: 'Desery', price: 1200, image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=900&q=85' },
+  { id: 'cheesecake-brownie', name: 'Brownie czekoladowe', description: 'Wilgotne ciasto czekoladowe z sosem waniliowym', category: 'Desery', price: 2000, image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=900&q=85' },
 
+  // Napoje
   { id: 'lemonade', name: 'Lemoniada domowa', description: 'Cytryna, mięta i lód — 400 ml', category: 'Napoje', price: 1400, image: 'https://images.unsplash.com/photo-1513558161293-cdaf765edfd4?auto=format&fit=crop&w=900&q=85', tag: 'Orzeźwiająca' },
   { id: 'compote', name: 'Kompot dnia', description: 'Domowy napój owocowy — 250 ml', category: 'Napoje', price: 800, image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=900&q=85' },
   { id: 'coffee', name: 'Kawa mleczna', description: 'Świeżo parzona kawa z mlekiem', category: 'Napoje', price: 1300, image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=85' },
   { id: 'tea', name: 'Herbata z cytryną', description: 'Czarna herbata, cytryna i miód podawany osobno', category: 'Napoje', price: 1000, image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=900&q=85' },
+  { id: 'still-water', name: 'Woda niegazowana', description: 'Woda mineralna — 330 ml', category: 'Napoje', price: 800, image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=900&q=85' },
+  { id: 'sparkling-water', name: 'Woda gazowana', description: 'Woda mineralna — 330 ml', category: 'Napoje', price: 800, image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=900&q=85' },
+  { id: 'apple-juice', name: 'Sok jabłkowy', description: 'Sok 100% — 250 ml', category: 'Napoje', price: 900, image: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=900&q=85' },
+  { id: 'orangeade', name: 'Oranżada rzemieślnicza', description: 'Gazowany napój pomarańczowy — 250 ml', category: 'Napoje', price: 1000, image: 'https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&w=900&q=85' },
+  { id: 'espresso', name: 'Espresso', description: 'Mała czarna kawa — pojedyncze espresso', category: 'Napoje', price: 1000, image: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?auto=format&fit=crop&w=900&q=85' },
+  { id: 'hot-chocolate', name: 'Gorąca czekolada', description: 'Gęsta czekolada na mleku, podawana na gorąco', category: 'Napoje', price: 1600, image: 'https://images.unsplash.com/photo-1542990253-0b8be8e9dc5e?auto=format&fit=crop&w=900&q=85' },
 ]
 
 const formatPrice = (priceInGrosze: number) =>
