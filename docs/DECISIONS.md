@@ -79,3 +79,11 @@ Zapisujemy tutaj decyzje, które wpływają na zakres, technologię lub architek
 - **Decyzja:** bieżącym priorytetem jest doprowadzenie wydruku niefiskalnego paragonu do stanu powtarzalnego i sprawdzonego na fizycznej drukarce. Nowe funkcje POS odkładamy, jeśli nie wspierają bezpośrednio tego celu.
 - **Powód:** moduł wydruku jest kluczową częścią docelowego przepływu aplikacji, a obecne potwierdzenie transmisji nie jest równoznaczne z potwierdzeniem jakości fizycznego wydruku. Testy jakości są ograniczone do czasu założenia papieru.
 - **Konsekwencje:** plan testów, scenariusze awarii i kryteria ukończenia są prowadzone w `docs/ROADMAP.md`. Etap uznajemy za zakończony dopiero po testach na docelowym tablecie i drukarce, z udokumentowanym wynikiem. Druk pozostaje niefiskalny; płatności są symulowane.
+
+
+## D-012 — Raporty operacyjne i uproszczona nawigacja
+
+- **Status:** zaakceptowana
+- **Decyzja:** raporty popularności produktów i czasu obsługi bazują wyłącznie na rozliczonych zamówieniach dostępnych w lokalnej historii. Czas obsługi liczony jest od utworzenia rachunku (`completedAt` w aktualnym modelu) do rozliczenia (`paidAt`). Nawigacja eksponuje Stoliki, Zamówienie i Raporty, a Historia i Drukarka są dostępne w menu „Więcej”.
+- **Powód:** ograniczenie liczby stale widocznych pozycji menu i udostępnienie podstawowych wskaźników bez backendu.
+- **Konsekwencje:** raporty są lokalne dla urządzenia/przeglądarki i ograniczone do maksymalnie 100 ostatnich zamówień; otwarte i anulowane rachunki nie wchodzą do statystyk. Wartości dla produktu bez sprzedaży są widoczne jako zero. CI nie zastępuje przeglądu na docelowym tablecie.
