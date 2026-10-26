@@ -14,8 +14,17 @@ export function calculateProductSales(products: ReportProduct[], orders: ReportO
   for (const order of orders) {
     if (order.status !== 'paid') continue
     for (const item of order.items) {
-      const total = totals.get(item.product.id)
-      if (!total) continue
+      let total = totals.get(item.product.id)
+      if (!total) {
+        total = {
+          id: item.product.id,
+          name: item.product.name,
+          category: item.product.category,
+          quantity: 0,
+          revenue: 0,
+        }
+        totals.set(item.product.id, total)
+      }
       total.quantity += item.quantity
       total.revenue += item.product.price * item.quantity
     }

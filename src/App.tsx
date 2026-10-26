@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { connectPrinter, disconnectPrinter, getPrinterConnection, printTestReceipt } from './printing/mx06-printer'
 import { APP_VERSION } from './version'
 import { calculateProductSales, getMedian, getServiceDurations } from './domain/reports'
+import { dailyLunchPool, getDailyLunch, getWarsawDateKey } from './domain/daily-lunch'
 
 declare const __BUILD_TIMESTAMP__: string
 import './App.css'
 
-type Category = 'Wszystko' | 'Przystawki' | 'Zupy' | 'Dania główne' | 'Desery' | 'Napoje'
+type Category = 'Wszystko' | 'Lunch dnia' | 'Przystawki' | 'Zupy' | 'Dania główne' | 'Desery' | 'Napoje'
 
 type Product = {
   id: string
@@ -41,6 +42,7 @@ const INITIAL_REPORT_TIME = Date.now()
 
 const categories: Category[] = [
   'Wszystko',
+  'Lunch dnia',
   'Przystawki',
   'Zupy',
   'Dania główne',
@@ -149,6 +151,7 @@ function App() {
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash')
   const [cardPaymentStatus, setCardPaymentStatus] = useState<'idle' | 'connecting' | 'waiting' | 'reading' | 'authorizing' | 'approved'>('idle')
   const [activeCategory, setActiveCategory] = useState<Category>('Wszystko')
+  const [dailyLunchDate, setDailyLunchDate] = useState(() => getWarsawDateKey())
   const [menuSearch, setMenuSearch] = useState('')
   const [cart, setCart] = useState<CartItem[]>([])
   const [cartOpen, setCartOpen] = useState(false)
@@ -174,19 +177,28 @@ function App() {
   })
 
   useEffect(() => {
+    const refreshDate = () => setDailyLunchDate(getWarsawDateKey())
+    const intervalId = window.setInterval(refreshDate, 60_000)
+    return () => window.clearInterval(intervalId)
+  }, [])
+
+  useEffect(() => {
     const refreshConnection = () => setPrinterConnection(getPrinterConnection())
     window.addEventListener('printer-connection-change', refreshConnection)
     return () => window.removeEventListener('printer-connection-change', refreshConnection)
   }, [])
 
+  const dailyLunch = useMemo(() => getDailyLunch(dailyLunchDate, dailyLunchPool), [dailyLunchDate])
+  const menuProducts = useMemo(() => [...products, dailyLunch], [dailyLunch])
+
   const visibleProducts = useMemo(() => {
     const normalizedSearch = menuSearch.trim().toLocaleLowerCase('pl-PL')
-    return products.filter((product) => {
+    return menuProducts.filter((product) => {
       const matchesCategory = activeCategory === 'Wszystko' || product.category === activeCategory
       const searchableText = `${product.name} ${product.description} ${product.category}`.toLocaleLowerCase('pl-PL')
       return matchesCategory && (!normalizedSearch || searchableText.includes(normalizedSearch))
     })
-  }, [activeCategory, menuSearch])
+  }, [activeCategory, menuSearch, menuProducts])
 
   const openOrders = orderHistory.filter((order) => order.status === 'open')
   const tableOrder = (tableId: number) => orderHistory.find((order) => order.tableId === tableId && order.status === 'open')
@@ -206,7 +218,7 @@ function App() {
     return orderHistory.filter((order) => order.status === 'paid' && order.paidAt && order.paidAt.getTime() >= cutoff)
   }, [orderHistory, reportPeriod, reportNow])
 
-  const productReport = useMemo(() => calculateProductSales(products, reportOrders), [reportOrders])
+  const productReport = useMemo(() => calculateProductSales([...products, dailyLunch], reportOrders), [dailyLunch, reportOrders])
   const serviceDurations = useMemo(() => getServiceDurations(reportOrders), [reportOrders])
   const averageServiceMs = serviceDurations.length
     ? serviceDurations.reduce((sum, duration) => sum + duration, 0) / serviceDurations.length

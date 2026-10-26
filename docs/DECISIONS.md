@@ -87,3 +87,12 @@ Zapisujemy tutaj decyzje, które wpływają na zakres, technologię lub architek
 - **Decyzja:** raporty popularności produktów i czasu obsługi bazują wyłącznie na rozliczonych zamówieniach dostępnych w lokalnej historii. Czas obsługi liczony jest od utworzenia rachunku (`completedAt` w aktualnym modelu) do rozliczenia (`paidAt`). Nawigacja eksponuje Stoliki, Zamówienie i Raporty, a Historia i Drukarka są dostępne w menu „Więcej”.
 - **Powód:** ograniczenie liczby stale widocznych pozycji menu i udostępnienie podstawowych wskaźników bez backendu.
 - **Konsekwencje:** raporty są lokalne dla urządzenia/przeglądarki i ograniczone do maksymalnie 100 ostatnich zamówień; otwarte i anulowane rachunki nie wchodzą do statystyk. Wartości dla produktu bez sprzedaży są widoczne jako zero. CI nie zastępuje przeglądu na docelowym tablecie.
+
+
+## D-013 — Lunch dnia wybierany deterministycznie
+
+- **Status:** zaakceptowana
+- **Decyzja:** jedna pozycja lunchowa jest wybierana z puli 36 predefiniowanych dań na podstawie daty kalendarzowej w strefie `Europe/Warsaw`. Funkcja skrótu daty i stabilne identyfikatory dań zapewniają ten sam wybór po odświeżeniu i na różnych urządzeniach.
+- **Powód:** lunch ma zmieniać się raz dziennie, bez serwera, ręcznej konfiguracji i zapisu w `localStorage`.
+- **Konsekwencje:** w menu jest osobna kategoria „Lunch dnia” zawierająca dokładnie jedną pozycję. Zamówienia zapisują pełną migawkę produktu, więc historyczne raporty zachowują nazwy i ceny lunchów z poprzednich dni. Zmiana daty jest wykrywana w trakcie działania aplikacji.
+- **Ograniczenie:** wybór jest deterministyczny, a nie kryptograficznie losowy; możliwe jest powtórzenie dania w sąsiednich dniach.
