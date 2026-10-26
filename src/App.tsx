@@ -130,8 +130,17 @@ function loadOrderHistory(): CompletedOrder[] {
   }
 }
 
+function formatDuration(milliseconds: number): string {
+  const totalMinutes = Math.max(0, Math.round(milliseconds / 60000))
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+  return hours > 0 ? `${hours} godz. ${minutes} min` : `${minutes} min`
+}
+
 function App() {
-  const [page, setPage] = useState<'order' | 'tables' | 'history' | 'printer'>('tables')
+  const [page, setPage] = useState<'order' | 'tables' | 'history' | 'printer' | 'reports'>('tables')
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false)
+  const [reportPeriod, setReportPeriod] = useState<'7d' | '30d' | 'all'>('7d')
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null)
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash')
@@ -186,6 +195,44 @@ function App() {
   const selectTable = (tableId: number) => { const existing = tableOrder(tableId); setSelectedTableId(tableId); setCart(existing ? existing.items.map((item) => ({ ...item })) : []); setPage('order'); setCartOpen(false) }
   const itemCount = cart.reduce((total, item) => total + item.quantity, 0)
   const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+
+  const reportOrders = useMemo(() => {
+    const now = Date.now()
+    const cutoff = reportPeriod === '7d' ? now - 7 * 24 * 60 * 60 * 1000
+      : reportPeriod === '30d' ? now - 30 * 24 * 60 * 60 * 1000
+        : Number.NEGATIVE_INFINITY
+    return orderHistory.filter((order) => order.status === 'paid' && order.paidAt && order.paidAt.getTime() >= cutoff)
+  }, [orderHistory, reportPeriod])
+
+  const productReport = useMemo(() => {
+    const counts = new Map(products.map((product) => [product.id, { id: product.id, name: product.name, category: product.category, quantity: 0, revenue: 0 }]))
+    for (const order of reportOrders) {
+      for (const item of order.items) {
+        const existing = counts.get(item.product.id)
+        if (existing) {
+          existing.quantity += item.quantity
+          existing.revenue += item.product.price * item.quantity
+        }
+      }
+    }
+    return [...counts.values()]
+  }, [reportOrders])
+
+  const serviceDurations = reportOrders
+    .map((order) => order.paidAt!.getTime() - order.completedAt.getTime())
+    .filter((duration) => Number.isFinite(duration) && duration >= 0)
+    .sort((left, right) => left - right)
+  const averageServiceMs = serviceDurations.length
+    ? serviceDurations.reduce((sum, duration) => sum + duration, 0) / serviceDurations.length
+    : null
+  const medianServiceMs = serviceDurations.length
+    ? serviceDurations.length % 2
+      ? serviceDurations[Math.floor(serviceDurations.length / 2)]
+      : (serviceDurations[serviceDurations.length / 2 - 1] + serviceDurations[serviceDurations.length / 2]) / 2
+    : null
+  const reportRevenue = reportOrders.reduce((sum, order) => sum + order.total, 0)
+  const topProducts = [...productReport].sort((left, right) => right.quantity - left.quantity || left.name.localeCompare(right.name, 'pl-PL')).slice(0, 5)
+  const leastProducts = [...productReport].sort((left, right) => left.quantity - right.quantity || left.name.localeCompare(right.name, 'pl-PL')).slice(0, 5)
 
   const addToCart = (product: Product) => {
     setCart((current) => {
@@ -254,10 +301,16 @@ function App() {
         </a>
         <div className="topbar-note"><span className="open-dot" /> Dziś gotujemy z sercem</div>
         <nav className="app-navigation" aria-label="Nawigacja aplikacji">
-          <button className={page === 'tables' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => setPage('tables')}><span aria-hidden="true">▦</span> Stoliki <span className="app-nav-count">{openOrders.length}</span></button>
-          <button className={page === 'order' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => selectedTableId === null ? setPage('tables') : setPage('order')}><span aria-hidden="true">＋</span> Zamówienie</button>
-          <button className={page === 'history' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => setPage('history')}><span aria-hidden="true">▤</span> Historia <span className="app-nav-count">{orderHistory.length}</span></button>
-          <button className={page === 'printer' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => setPage('printer')}><span aria-hidden="true">▤</span> Drukarka <span className={`printer-nav-dot ${printerConnection.connected ? 'is-connected' : ''}`} aria-label={printerConnection.connected ? 'Połączona' : 'Rozłączona'} /></button>
+          <button className={page === 'tables' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => { setPage('tables'); setMoreMenuOpen(false) }}><span aria-hidden="true">▦</span> Stoliki <span className="app-nav-count">{openOrders.length}</span></button>
+          <button className={page === 'order' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => { selectedTableId === null ? setPage('tables') : setPage('order'); setMoreMenuOpen(false) }}><span aria-hidden="true">＋</span> Zamówienie</button>
+          <button className={page === 'reports' ? 'app-nav-link active' : 'app-nav-link'} type="button" onClick={() => { setPage('reports'); setMoreMenuOpen(false) }}><span aria-hidden="true">▥</span> Raporty</button>
+          <div className="nav-more-wrap">
+            <button className={page === 'history' || page === 'printer' ? 'app-nav-link active' : 'app-nav-link'} type="button" aria-expanded={moreMenuOpen} aria-haspopup="true" onClick={() => setMoreMenuOpen((open) => !open)}><span aria-hidden="true">•••</span> Więcej <span aria-hidden="true">⌄</span></button>
+            {moreMenuOpen && <div className="nav-more-menu" role="menu">
+              <button type="button" role="menuitem" className={page === 'history' ? 'nav-more-item active' : 'nav-more-item'} onClick={() => { setPage('history'); setMoreMenuOpen(false) }}><span aria-hidden="true">▤</span> Historia <span className="app-nav-count">{orderHistory.length}</span></button>
+              <button type="button" role="menuitem" className={page === 'printer' ? 'nav-more-item active' : 'nav-more-item'} onClick={() => { setPage('printer'); setMoreMenuOpen(false) }}><span aria-hidden="true">▤</span> Drukarka <span className={`printer-nav-dot ${printerConnection.connected ? 'is-connected' : ''}`} aria-label={printerConnection.connected ? 'Połączona' : 'Rozłączona'} /></button>
+            </div>}
+          </div>
         </nav>
         {page === 'order' && <button className="mobile-cart-button" type="button" onClick={() => setCartOpen((open) => !open)}>
           Koszyk <span>{itemCount}</span>
@@ -489,6 +542,39 @@ function App() {
             </ul>
             <div className="printer-no-paper-note"><span aria-hidden="true">ⓘ</span><p><strong>Przed testem załóż papier</strong> Samo połączenie Bluetooth działa bez rolki, ale nie uruchamiaj wydruku testowego, dopóki papier nie będzie założony.</p></div>
           </aside>
+        </div>
+      </section>
+
+      <section className="reports-page" aria-labelledby="reports-title" hidden={page !== 'reports'}>
+        <div className="reports-heading">
+          <div><span className="eyebrow">PODSUMOWANIE SPRZEDAŻY</span><h2 id="reports-title">Raporty</h2><p>Popularność dań i czas obsługi na podstawie rozliczonych rachunków zapisanych na tym urządzeniu.</p></div>
+          <div className="report-period-switch" role="group" aria-label="Okres raportu">
+            <button type="button" className={reportPeriod === '7d' ? 'active' : ''} aria-pressed={reportPeriod === '7d'} onClick={() => setReportPeriod('7d')}>7 dni</button>
+            <button type="button" className={reportPeriod === '30d' ? 'active' : ''} aria-pressed={reportPeriod === '30d'} onClick={() => setReportPeriod('30d')}>30 dni</button>
+            <button type="button" className={reportPeriod === 'all' ? 'active' : ''} aria-pressed={reportPeriod === 'all'} onClick={() => setReportPeriod('all')}>Cała historia</button>
+          </div>
+        </div>
+        <p className="reports-data-note">Raport obejmuje maksymalnie {MAX_STORED_ORDERS} ostatnich zamówień przechowywanych w tej przeglądarce. Zamówienia nierozliczone i anulowane są pomijane.</p>
+        <div className="reports-metrics">
+          <article className="report-metric"><span>Rozliczone rachunki</span><strong>{reportOrders.length}</strong><small>W wybranym okresie</small></article>
+          <article className="report-metric"><span>Sprzedaż</span><strong>{formatPrice(reportRevenue)}</strong><small>Łączna wartość rozliczonych rachunków</small></article>
+          <article className="report-metric"><span>Średni czas obsługi</span><strong>{averageServiceMs === null ? '—' : formatDuration(averageServiceMs)}</strong><small>Od otwarcia rachunku do rozliczenia</small></article>
+          <article className="report-metric"><span>Mediana czasu obsługi</span><strong>{medianServiceMs === null ? '—' : formatDuration(medianServiceMs)}</strong><small>Typowy czas, mniej podatny na skrajne wyniki</small></article>
+        </div>
+        {reportOrders.length === 0 && <div className="reports-empty"><span aria-hidden="true">▥</span><h3>Brak rozliczonych rachunków w tym okresie</h3><p>Gdy pojawią się rozliczone zamówienia, raport pokaże sprzedaż, popularność produktów i czas obsługi.</p></div>}
+        <div className="reports-tables">
+          <article className="report-table-card">
+            <div className="report-card-heading"><div><span className="eyebrow">TOP 5</span><h3>Najczęściej zamawiane</h3></div><span>Według liczby sztuk</span></div>
+            <div className="report-table-scroll"><table className="report-table"><thead><tr><th>Produkt</th><th>Kategoria</th><th>Sztuki</th><th>Sprzedaż</th></tr></thead><tbody>
+              {topProducts.map((product) => <tr key={product.id}><td>{product.name}</td><td>{product.category}</td><td>{product.quantity}</td><td>{formatPrice(product.revenue)}</td></tr>)}
+            </tbody></table></div>
+          </article>
+          <article className="report-table-card">
+            <div className="report-card-heading"><div><span className="eyebrow">BOTTOM 5</span><h3>Najrzadziej zamawiane</h3></div><span>Produkty bez sprzedaży też są widoczne</span></div>
+            <div className="report-table-scroll"><table className="report-table"><thead><tr><th>Produkt</th><th>Kategoria</th><th>Sztuki</th><th>Sprzedaż</th></tr></thead><tbody>
+              {leastProducts.map((product) => <tr key={product.id}><td>{product.name}</td><td>{product.category}</td><td>{product.quantity}</td><td>{formatPrice(product.revenue)}</td></tr>)}
+            </tbody></table></div>
+          </article>
         </div>
       </section>
 
