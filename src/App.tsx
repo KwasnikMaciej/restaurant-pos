@@ -466,7 +466,7 @@ function App() {
               <p className="table-item-count">Gotowy na gości</p>
             </>}
             <button className="checkout-button table-open-button" type="button" onClick={() => selectTable(tableId)}>{order ? 'Otwórz rachunek' : 'Nowe zamówienie'} <span aria-hidden="true">→</span></button>
-            {order && <button className="table-pay-button" type="button" onClick={() => { setLastOrder(order); setPaymentOpen(true); setPaymentMethod('cash') }}>Rozlicz rachunek</button>}
+            {order && <button className="table-pay-button" type="button" onClick={() => { setLastOrder(order); setCashReceived(''); setPaymentOpen(true); setPaymentMethod('cash') }}>Rozlicz rachunek</button>}
           </article>
         })}</div>
       </section>
@@ -806,7 +806,7 @@ function App() {
               <span aria-hidden="true">↗</span>
             </button>
             {printMessage && <p className={`print-status print-status-${printStatus}`} role="status">{printMessage}</p>}
-            {lastOrder.status === 'open' && <button className="checkout-button" type="button" onClick={() => { setPaymentOpen(true); setPaymentMethod('cash') }}>Rozlicz rachunek <span aria-hidden="true">→</span></button>}
+            {lastOrder.status === 'open' && <button className="checkout-button" type="button" onClick={() => { setCashReceived(''); setPaymentOpen(true); setPaymentMethod('cash') }}>Rozlicz rachunek <span aria-hidden="true">→</span></button>}
             <button className="secondary-button success-close" type="button" onClick={() => setLastOrder(null)}>Gotowe <span aria-hidden="true">✓</span></button>
           </section>
         </div>
