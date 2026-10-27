@@ -149,6 +149,7 @@ function App() {
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null)
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash')
+  const [cashReceived, setCashReceived] = useState('')
   const [cardPaymentStatus, setCardPaymentStatus] = useState<'idle' | 'connecting' | 'waiting' | 'reading' | 'authorizing' | 'approved'>('idle')
   const [activeCategory, setActiveCategory] = useState<Category>('Wszystko')
   const [dailyLunchDate, setDailyLunchDate] = useState(() => getWarsawDateKey())
@@ -276,6 +277,10 @@ function App() {
     await wait(900)
     settleOrder('card')
   }
+
+  const cashReceivedCents = Math.round(Number(cashReceived.replace(',', '.')) * 100)
+  const cashChangeCents = cashReceivedCents - (lastOrder?.total ?? 0)
+  const cashAmountValid = cashReceived.trim() !== '' && Number.isFinite(cashReceivedCents) && cashReceivedCents >= (lastOrder?.total ?? 0)
 
   const settleOrder = (method: 'cash' | 'card' = paymentMethod) => {
     if (!lastOrder || lastOrder.status !== 'open') return
@@ -647,11 +652,47 @@ function App() {
                 <button type="button" className={paymentMethod === 'card' ? 'payment-method selected' : 'payment-method'} aria-pressed={paymentMethod === 'card'} onClick={() => setPaymentMethod('card')}>💳 Karta</button>
               </div>
               <div className="demo-warning"><span aria-hidden="true">ⓘ</span> Tryb demonstracyjny — nie pobieramy prawdziwych płatności i nie łączymy się z terminalem.</div>
+              {paymentMethod === 'cash' && (
+                <section className="cash-change-panel" aria-labelledby="cash-change-title">
+                  <h3 id="cash-change-title">Kwota otrzymana od klienta</h3>
+                  <label className="cash-amount-label" htmlFor="cash-received">Wpisz kwotę w złotych</label>
+                  <div className="cash-amount-display">
+                    <span aria-hidden="true">zł</span>
+                    <input
+                      id="cash-received"
+                      inputMode="decimal"
+                      type="text"
+                      autoComplete="off"
+                      placeholder={((lastOrder.total / 100).toFixed(2)).replace('.', ',')}
+                      value={cashReceived}
+                      onChange={(event) => setCashReceived(event.target.value.replace(/[^0-9,.]/g, '').replace(',', '.').replace(/(\..*)\./g, '$1'))}
+                      aria-describedby="cash-change-result"
+                    />
+                    <button type="button" className="cash-clear-button" onClick={() => setCashReceived('')} aria-label="Wyczyść kwotę">×</button>
+                  </div>
+                  <div className="cash-quick-amounts" aria-label="Szybki wybór kwoty">
+                    {[lastOrder.total, 2000, 5000, 10000, 20000].filter((amount, index, amounts) => amounts.indexOf(amount) === index && amount >= lastOrder.total).slice(0, 5).map((amount) => (
+                      <button key={amount} type="button" className="cash-quick-button" onClick={() => setCashReceived((amount / 100).toFixed(2))}>{formatPrice(amount)}</button>
+                    ))}
+                  </div>
+                  <div className={cashReceived.trim() !== '' && cashChangeCents < 0 ? 'cash-change-result cash-change-insufficient' : 'cash-change-result'} id="cash-change-result" aria-live="polite">
+                    <span>{cashReceived.trim() === '' ? 'Reszta do wydania' : cashChangeCents < 0 ? 'Brakuje do pełnej kwoty' : 'Reszta do wydania'}</span>
+                    <strong>{cashReceived.trim() === '' ? '—' : formatPrice(Math.abs(cashChangeCents))}</strong>
+                  </div>
+                  <div className="cash-keypad" role="group" aria-label="Klawiatura numeryczna">
+                    {['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', ','].map((key) => (
+                      <button key={key} type="button" className="cash-key" onClick={() => setCashReceived((current) => key === ',' ? (current.includes('.') ? current : (current || '0') + '.') : current.length >= 9 ? current : current + key)}>{key}</button>
+                    ))}
+                    <button type="button" className="cash-key cash-key-delete" onClick={() => setCashReceived((current) => current.slice(0, -1))} aria-label="Usuń ostatni znak">⌫</button>
+                    <button type="button" className="cash-key cash-key-clear" onClick={() => setCashReceived('')}>Wyczyść</button>
+                  </div>
+                </section>
+              )}
               <div className="modal-actions">
                 <button className="secondary-button" type="button" onClick={() => setPaymentOpen(false)}>Wróć</button>
                 {paymentMethod === 'card'
                   ? <button className="checkout-button modal-confirm" type="button" onClick={startCardPayment}>Rozpocznij płatność <span aria-hidden="true">→</span></button>
-                  : <button className="checkout-button modal-confirm" type="button" onClick={() => settleOrder('cash')}>Potwierdź gotówkę <span aria-hidden="true">✓</span></button>}
+                  : <button className="checkout-button modal-confirm" type="button" disabled={!cashAmountValid} onClick={() => settleOrder('cash')}>Potwierdź gotówkę <span aria-hidden="true">✓</span></button>}
               </div>
             </> : <div className={cardPaymentStatus === 'approved' ? 'card-terminal-status terminal-approved' : 'card-terminal-status'} role="status" aria-live="polite">
               {cardPaymentStatus !== 'approved' && <span className="terminal-spinner" aria-hidden="true" />}
