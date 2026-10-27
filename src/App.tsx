@@ -700,6 +700,37 @@ function App() {
               <div className="checkout-total"><span>RAZEM</span><strong>{formatPrice(lastOrder.total)}</strong></div>
               <p className="receipt-disclaimer">To wyłącznie potwierdzenie w aplikacji demonstracyjnej. Nie jest dokumentem księgowym ani fiskalnym.</p>
             </div>
+            {lastOrder.status === 'paid' && lastOrder.paymentMethod === 'card' && (
+              <button
+                className="checkout-button print-button"
+                type="button"
+                disabled={printStatus === 'printing'}
+                onClick={async () => {
+                  setPrintStatus('printing')
+                  setPrintMessage('Przygotowujemy krótkie potwierdzenie symulowanej płatności kartą.')
+                  const lines = [
+                    'Franczesko Restaurant',
+                    'POTWIERDZENIE PLATNOSCI',
+                    `Rachunek #${String(lastOrder.number).padStart(4, '0')}`,
+                    `Data: ${(lastOrder.paidAt ?? new Date()).toLocaleString('pl-PL')}`,
+                    'Metoda: KARTA (SYMULACJA)',
+                    `Kwota: ${formatPrice(lastOrder.total)}`,
+                    'Nie jest dowodem bankowym.',
+                  ]
+                  try {
+                    await printTestReceipt(lines)
+                    setPrintStatus('success')
+                    setPrintMessage('Wysłano potwierdzenie do drukarki. To wydruk demonstracyjny, nie potwierdzenie operatora płatności.')
+                  } catch (error) {
+                    setPrintStatus('error')
+                    setPrintMessage(error instanceof Error ? error.message : 'Nie udało się wydrukować potwierdzenia płatności kartą.')
+                  }
+                }}
+              >
+                {printStatus === 'printing' ? 'Drukowanie potwierdzenia…' : 'Drukuj potwierdzenie płatności kartą'}
+                <span aria-hidden="true">↗</span>
+              </button>
+            )}
             <button
               className="checkout-button print-button"
               type="button"
@@ -730,7 +761,7 @@ function App() {
                 }
               }}
             >
-              {printStatus === 'printing' ? 'Łączenie i drukowanie…' : 'Drukuj potwierdzenie'}
+              {printStatus === 'printing' ? 'Łączenie i drukowanie…' : 'Drukuj potwierdzenie zamówienia'}
               <span aria-hidden="true">↗</span>
             </button>
             {printMessage && <p className={`print-status print-status-${printStatus}`} role="status">{printMessage}</p>}
