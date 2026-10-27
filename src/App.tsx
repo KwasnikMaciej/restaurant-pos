@@ -761,7 +761,7 @@ function App() {
                 }
               }}
             >
-              {printStatus === 'printing' ? 'Łączenie i drukowanie…' : 'Drukuj potwierdzenie'}
+              {printStatus === 'printing' ? 'Łączenie i drukowanie…' : 'Drukuj potwierdzenie zamówienia'}
               <span aria-hidden="true">↗</span>
             </button>
             {printMessage && <p className={`print-status print-status-${printStatus}`} role="status">{printMessage}</p>}
