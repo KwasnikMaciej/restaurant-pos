@@ -236,6 +236,26 @@ button:focus-visible, a:focus-visible { outline: 3px solid #c16d4c; outline-offs
 .order-status-open { color: #98512d; }
 .order-status-paid { color: #2d7251; }
 .payment-methods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin: 1rem 0; }
+
+.cash-change-panel { margin: 18px 0 6px; padding: 18px; border: 1px solid #e8d9c8; border-radius: 16px; background: #fff8ef; }
+.cash-change-panel h3 { margin: 0 0 12px; color: #49382c; font-size: 16px; }
+.cash-amount-label { display: block; margin-bottom: 7px; color: #806b59; font-size: 12px; font-weight: 600; }
+.cash-amount-display { display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 0 12px; border: 1px solid #d7c2ad; border-radius: 12px; background: white; }
+.cash-amount-display > span { color: #a94f35; font-size: 14px; font-weight: 700; }
+.cash-amount-display input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #3b3028; font-size: 25px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.cash-clear-button { width: 36px; height: 36px; flex: 0 0 36px; border: 0; border-radius: 9px; background: #f5eee5; color: #765f4b; font-size: 22px; }
+.cash-quick-amounts { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+.cash-quick-button { min-height: 38px; padding: 0 11px; border: 1px solid #e1cdb9; border-radius: 9px; background: #fffdf9; color: #6c4b38; font-size: 12px; font-weight: 650; }
+.cash-change-result { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 14px 0; padding: 12px; border-radius: 10px; background: #eaf5e9; color: #315b36; }
+.cash-change-result span { font-size: 13px; }
+.cash-change-result strong { font-size: 23px; font-variant-numeric: tabular-nums; }
+.cash-change-result.cash-change-insufficient { background: #fff0e8; color: #9a3f26; }
+.cash-keypad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.cash-key { min-height: 48px; border: 1px solid #e4d5c6; border-radius: 10px; background: #fffdf9; color: #49382c; font-size: 20px; font-weight: 600; touch-action: manipulation; }
+.cash-key:active, .cash-quick-button:active { background: #f2e2d2; }
+.cash-key-delete, .cash-key-clear { color: #8e5039; font-size: 14px; }
+.checkout-button:disabled { cursor: not-allowed; opacity: .45; }
+
 .payment-method { padding: 1rem; border: 1px solid #e3d5c4; border-radius: 12px; background: #fffdf9; color: #4d3e30; font: inherit; font-weight: 700; cursor: pointer; }
 .payment-method.selected { border-color: #9a7049; background: #f4eadc; box-shadow: inset 0 0 0 1px #9a7049; }
 @media (max-width: 1050px) { .tables-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
