@@ -79,7 +79,15 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 - [x] Uporządkować nawigację: podstawowe widoki na wierzchu, historię i drukarkę przenieść do menu „Więcej”.
 - [ ] Po stabilizacji drukarki przeprowadzić przegląd UX raportów i nawigacji na tablecie.
 
-## Etap 5 — Wydanie na urządzeniu
+## Etap 5 — Architektura wielorólna
+
+- [x] Wprowadzić katalog ról i centralny punkt wyboru roli przy uruchomieniu aplikacji.
+- [x] Wyodrębnić obszar kelnera do osobnego modułu `src/roles/WaiterWorkspace.tsx`.
+- [x] Dodać demonstracyjny ekran wejścia z wyborem roli i przełączaniem/wylogowaniem.
+- [ ] Dodać kolejne role jako niezależne moduły, bez rozbudowywania widoku kelnera.
+- [ ] W przyszłości zastąpić demonstracyjny wybór ról właściwym uwierzytelnianiem i autoryzacją.
+
+## Etap 6 — Wydanie na urządzeniu
 
 - [ ] Zweryfikować Web Bluetooth na docelowym urządzeniu po wdrożeniu.
 - [ ] Rozważyć instalację PWA i zachowanie po ponownym uruchomieniu tabletu.
