@@ -82,7 +82,8 @@ export function KitchenWorkspace({ onLogout }: KitchenWorkspaceProps) {
         result[status] += item.quantity
       }
       return result
-    }, { queued: 0, preparing: 0, ready: 0 }), [orders])
+    }, { queued: 0, preparing: 0, ready: 0 })
+  }, [orders])
 
   const changeItemStatus = (orderNumber: number, itemIndex: number, status: KitchenStatus) => {
     const current = loadKitchenOrders()
