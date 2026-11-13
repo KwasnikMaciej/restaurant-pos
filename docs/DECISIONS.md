@@ -96,3 +96,12 @@ Zapisujemy tutaj decyzje, które wpływają na zakres, technologię lub architek
 - **Powód:** lunch ma zmieniać się raz dziennie, bez serwera, ręcznej konfiguracji i zapisu w `localStorage`.
 - **Konsekwencje:** w menu jest osobna kategoria „Lunch dnia” zawierająca dokładnie jedną pozycję. Zamówienia zapisują pełną migawkę produktu, więc historyczne raporty zachowują nazwy i ceny lunchów z poprzednich dni. Zmiana daty jest wykrywana w trakcie działania aplikacji.
 - **Ograniczenie:** wybór jest deterministyczny, a nie kryptograficznie losowy; możliwe jest powtórzenie dania w sąsiednich dniach.
+
+
+## D-014 — Role jako osobne obszary aplikacji
+
+- **Status:** zaakceptowana
+- **Decyzja:** aplikacja ma centralny ekran wejścia, który wybiera aktywną rolę i kieruje do odrębnego modułu roli. Pierwszą rolą jest `waiter`, której dotychczasowy interfejs został wydzielony do `src/roles/WaiterWorkspace.tsx`. Definicje ról znajdują się w `src/roles/roles.ts`.
+- **Powód:** kolejne obszary (np. kuchnia, manager, administrator) powinny rozwijać się niezależnie od przepływu kelnera.
+- **Konsekwencje:** aktywna rola jest zapamiętywana w `localStorage`; użytkownik może ją zmienić przez przycisk „Zmień rolę”. Login i hasło są wyłącznie demonstracyjne i nie zapewniają bezpieczeństwa.
+- **Ograniczenie:** ukrycie modułu w interfejsie nie jest autoryzacją. Przed rzeczywistym wdrożeniem wieloużytkownikowym potrzebny będzie backend, tożsamość użytkownika i kontrola uprawnień po stronie serwera.
