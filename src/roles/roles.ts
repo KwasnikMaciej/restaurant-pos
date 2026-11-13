@@ -1,4 +1,4 @@
-export type SystemRole = 'waiter'
+export type SystemRole = 'waiter' | 'kitchen'
 
 export type RoleDefinition = {
   id: SystemRole
@@ -12,6 +12,12 @@ export const systemRoles: RoleDefinition[] = [
     id: 'waiter',
     label: 'Kelner',
     description: 'Obsługa stolików, zamówień i rozliczeń',
+    available: true,
+  },
+  {
+    id: 'kitchen',
+    label: 'Kucharz',
+    description: 'Kolejka dań i obsługa przygotowania zamówień',
     available: true,
   },
 ]

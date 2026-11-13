@@ -97,3 +97,12 @@ Plan jest iteracyjny. Statusy aktualizujemy, gdy etap zostanie rzeczywiście wyk
 ## Zasada zakończenia etapu
 
 Etap uznajemy za ukończony dopiero po sprawdzeniu działania na uruchomionej aplikacji. Samo napisanie kodu nie wystarcza. **Etap drukarki nie jest ukończony bez fizycznego testu wydruku na docelowym urządzeniu z papierem.** CI (lint/build) potwierdza poprawność techniczną projektu, ale nie potwierdza kompatybilności sprzętowej.
+
+
+## Moduł kuchni — przepływ zamówień
+- [x] Dodać rolę Kucharz do ekranu wyboru ról.
+- [x] Wydzielić niezależny ekran kolejki kuchennej.
+- [x] Współdzielić kolejkę zamówień z modułem kelnera przez wspólny zapis lokalny na tym samym urządzeniu.
+- [x] Obsłużyć statusy pozycji: do przygotowania, w trakcie, gotowe.
+- [x] Dodać automatyczne odświeżanie kolejki i ręczne odświeżenie.
+- [ ] Przetestować przepływ kelner → kuchnia → kelner na urządzeniu docelowym.

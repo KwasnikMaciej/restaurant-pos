@@ -235,7 +235,7 @@ export function WaiterWorkspace({ onLogout }: WaiterWorkspaceProps) {
     setCart((current) => {
       const existing = current.find((item) => item.product.id === product.id)
       if (existing) {
-        return current.map((item) => item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
+        return current.map((item) => item.product.id === product.id ? { ...item, quantity: item.quantity + 1, kitchenStatus: undefined } : item)
       }
       return [...current, { product, quantity: 1 }]
     })
@@ -243,7 +243,7 @@ export function WaiterWorkspace({ onLogout }: WaiterWorkspaceProps) {
 
   const changeQuantity = (productId: string, change: number) => {
     setCart((current) => current
-      .map((item) => item.product.id === productId ? { ...item, quantity: item.quantity + change } : item)
+      .map((item) => item.product.id === productId ? { ...item, quantity: item.quantity + change, kitchenStatus: undefined } : item)
       .filter((item) => item.quantity > 0))
   }
 
