@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { connectPrinter, disconnectPrinter, getPrinterConnection, printTestReceipt } from './printing/mx06-printer'
-import { APP_VERSION } from './version'
-import { calculateProductSales, getMedian, getServiceDurations } from './domain/reports'
-import { dailyLunchPool, getDailyLunch, getWarsawDateKey } from './domain/daily-lunch'
+import { connectPrinter, disconnectPrinter, getPrinterConnection, printTestReceipt } from '../printing/mx06-printer'
+import { APP_VERSION } from '../version'
+import { calculateProductSales, getMedian, getServiceDurations } from '../domain/reports'
+import { dailyLunchPool, getDailyLunch, getWarsawDateKey } from '../domain/daily-lunch'
 
 declare const __BUILD_TIMESTAMP__: string
-import './App.css'
+import '../App.css'
 
 type Category = 'Wszystko' | 'Lunch dnia' | 'Przystawki' | 'Zupy' | 'Dania główne' | 'Desery' | 'Napoje'
 
