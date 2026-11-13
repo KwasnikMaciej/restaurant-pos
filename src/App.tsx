@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ACTIVE_ROLE_STORAGE_KEY, isSystemRole, systemRoles, type SystemRole } from './roles/roles'
 import { WaiterWorkspace } from './roles/WaiterWorkspace'
+import { KitchenWorkspace } from './roles/KitchenWorkspace'
 import './App.css'
 
 function getStoredRole(): SystemRole | null {
@@ -91,6 +92,8 @@ function App() {
   switch (activeRole) {
     case 'waiter':
       return <WaiterWorkspace onLogout={logout} />
+    case 'kitchen':
+      return <KitchenWorkspace onLogout={logout} />
     default:
       return <RoleLogin onLogin={login} />
   }
