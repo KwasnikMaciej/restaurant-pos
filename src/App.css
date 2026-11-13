@@ -498,3 +498,42 @@ button:focus-visible, a:focus-visible { outline: 3px solid #c16d4c; outline-offs
   .report-card-heading > span { text-align: left; }
   .nav-more-menu { right: 0; }
 }
+
+
+/* Role selection and session shell */
+.role-login-screen { display: grid; min-height: 100vh; place-items: center; padding: 28px 18px; background: radial-gradient(circle at top left, #f7e9d8 0, #f7f1e8 38%, #eee4d8 100%); }
+.role-login-card { width: min(100%, 490px); padding: clamp(24px, 5vw, 42px); border: 1px solid #eadfd1; border-radius: 24px; background: #fffdf9; box-shadow: 0 24px 80px #49382c1c; }
+.role-login-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 34px; color: #49382c; }
+.role-login-mark { display: grid; width: 48px; height: 48px; place-items: center; border-radius: 15px; background: #a94f35; color: white; font: 700 25px 'Playfair Display', serif; }
+.role-login-brand > div { display: grid; gap: 1px; }
+.role-login-brand strong { font: 600 23px 'Playfair Display', serif; }
+.role-login-brand > div > span { color: #9a806d; font-size: 9px; letter-spacing: .22em; }
+.role-login-eyebrow { color: #a94f35; font-size: 10px; font-weight: 750; letter-spacing: .17em; }
+.role-login-card h1 { margin: 8px 0; color: #3b3028; font: 600 clamp(27px, 5vw, 34px)/1.15 'Playfair Display', serif; }
+.role-login-intro { margin: 0 0 22px; color: #806f60; font-size: 14px; line-height: 1.55; }
+.role-login-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.role-login-fields label { display: grid; gap: 7px; color: #765f4b; font-size: 12px; font-weight: 650; }
+.role-login-fields input { width: 100%; min-width: 0; padding: 12px; border: 1px solid #e4d8cb; border-radius: 10px; background: #f8f4ef; color: #8a7b6e; font: inherit; }
+.role-picker { display: grid; gap: 10px; margin: 0; padding: 0; border: 0; }
+.role-picker legend { margin-bottom: 10px; color: #49382c; font-size: 14px; font-weight: 750; }
+.role-option { display: flex; width: 100%; align-items: center; gap: 12px; padding: 14px; border: 1px solid #e7dbce; border-radius: 13px; background: #fffdf9; color: #49382c; text-align: left; }
+.role-option-selected { border-color: #a94f35; background: #fff6ed; box-shadow: 0 0 0 2px #a94f3518; }
+.role-option-icon { display: grid; width: 42px; height: 42px; flex: 0 0 42px; place-items: center; border-radius: 12px; background: #f2e6d9; color: #96523b; font-size: 23px; }
+.role-option-copy { display: grid; flex: 1; gap: 3px; }
+.role-option-copy strong { font-size: 14px; }
+.role-option-copy small { color: #8b7968; font-size: 11px; line-height: 1.4; }
+.role-option-check { display: grid; width: 24px; height: 24px; place-items: center; border: 1px solid #ddcabb; border-radius: 50%; color: #a94f35; font-weight: 800; }
+.role-option-selected .role-option-check { border-color: #a94f35; background: #a94f35; color: white; }
+.role-login-submit { width: 100%; margin-top: 22px; min-height: 52px; }
+.role-login-note { margin: 14px 0 0; color: #a08f80; font-size: 11px; line-height: 1.5; text-align: center; }
+.role-session { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.role-session-label { color: #8a7767; font-size: 11px; white-space: nowrap; }
+.role-session-label strong { color: #49382c; }
+.role-switch-button { padding: 8px 11px; border: 1px solid #e4d8cb; border-radius: 9px; background: #fffdf9; color: #8d5038; font-size: 11px; font-weight: 700; white-space: nowrap; }
+@media (max-width: 760px) {
+  .role-login-screen { align-items: start; padding: 14px; }
+  .role-login-card { margin: auto 0; border-radius: 19px; }
+  .role-login-fields { grid-template-columns: 1fr; gap: 9px; }
+  .role-session { gap: 7px; }
+  .role-session-label { display: none; }
+}
