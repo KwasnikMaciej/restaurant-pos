@@ -15,16 +15,19 @@ export function getKitchenStatus(item: KitchenOrderItem): KitchenStatus {
   return item.kitchenStatus ?? 'queued'
 }
 
-export function updateKitchenItemStatus<TItem extends KitchenOrderItem>(
-  order: KitchenOrder<TItem>,
+export function updateKitchenItemStatus<
+  TItem extends KitchenOrderItem,
+  TOrder extends { status: 'open' | 'paid' | 'cancelled'; items: TItem[] },
+>(
+  order: TOrder,
   itemIndex: number,
   status: KitchenStatus,
-): KitchenOrder<TItem> {
+): TOrder {
   if (order.status !== 'open') throw new Error('Only open orders can be processed by the kitchen.')
   if (!Number.isInteger(itemIndex) || itemIndex < 0 || itemIndex >= order.items.length) {
     throw new RangeError('Kitchen order item does not exist.')
   }
-  return { ...order, items: order.items.map((item, index) => index === itemIndex ? { ...item, kitchenStatus: status } : item) }
+  return { ...order, items: order.items.map((item, index) => index === itemIndex ? { ...item, kitchenStatus: status } : item) } as TOrder
 }
 
 export function getKitchenOrderProgress(order: KitchenOrder): { ready: number; total: number; preparing: number; queued: number } {
