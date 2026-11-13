@@ -27,17 +27,6 @@ function RoleLogin({ onLogin }: { onLogin: (role: SystemRole) => void }) {
         <h1 id="role-login-title">Witaj w restauracji</h1>
         <p className="role-login-intro">Wybierz rolę, aby przejść do odpowiedniego obszaru systemu.</p>
 
-        <div className="role-login-fields">
-          <label>
-            Login
-            <input type="text" value="demo" readOnly aria-label="Login demonstracyjny" />
-          </label>
-          <label>
-            Hasło
-            <input type="password" value="demo" readOnly aria-label="Hasło demonstracyjne" />
-          </label>
-        </div>
-
         <fieldset className="role-picker">
           <legend>Wybierz rolę w systemie</legend>
           {systemRoles.map((role) => (
@@ -49,7 +38,11 @@ function RoleLogin({ onLogin }: { onLogin: (role: SystemRole) => void }) {
               disabled={!role.available}
               onClick={() => setSelectedRole(role.id)}
             >
-              <span className="role-option-icon" aria-hidden="true">♙</span>
+              <span className={`role-option-icon role-option-icon-${role.id}`} aria-hidden="true">{role.id === 'waiter' ? (
+                <svg viewBox="0 0 48 48" focusable="false"><path d="M15 8h18v5H15zM12 17h24v22H12z" /><path d="M17 22h14M17 28h9M17 34h6" /></svg>
+              ) : (
+                <svg viewBox="0 0 48 48" focusable="false"><path d="M10 35h28M14 35V20h20v15M18 20v-7h12v7M19 13V9h10v4" /><path d="M20 26h8M24 22v8" /></svg>
+              )}</span>
               <span className="role-option-copy"><strong>{role.label}</strong><small>{role.description}</small></span>
               <span className="role-option-check" aria-hidden="true">{selectedRole === role.id ? '✓' : ''}</span>
             </button>
@@ -60,7 +53,6 @@ function RoleLogin({ onLogin }: { onLogin: (role: SystemRole) => void }) {
           Zaloguj jako {systemRoles.find((role) => role.id === selectedRole)?.label ?? 'użytkownik'}
           <span aria-hidden="true">→</span>
         </button>
-        <p className="role-login-note">Tryb demonstracyjny — logowanie i hasło nie są weryfikowane.</p>
       </section>
     </main>
   )
